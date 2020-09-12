@@ -187,8 +187,8 @@ func gomanRoot() string {
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return filepath.Join("/", ".gomanroot")
+		return filepath.Join("/", ".goman")
 	}
 
-	return filepath.Join(homeDir, ".gomanroot")
+	return filepath.Join(homeDir, ".goman")
 }
