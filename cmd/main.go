@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/NoizeMe/go-man/pkg/logging"
 	goreleases "github.com/NoizeMe/go-man/pkg/releases"
+	"github.com/NoizeMe/go-man/pkg/selectors"
 	"github.com/mholt/archiver/v3"
 	"github.com/posener/cmd"
 	"io/ioutil"
@@ -59,6 +60,12 @@ var (
 		"[versions]",
 		"The versions that should be removed.",
 	)
+
+	select_        = root.SubCommand("select", "Selects the active installation of the Go SDK.")
+	selectVersions = select_.Args(
+		"[version]",
+		"The version that should be selected.",
+	)
 )
 
 func main() {
@@ -73,6 +80,8 @@ func main() {
 		handleInstall(*dryRun, *installAll, *installOS, *installArch, *installVersions)
 	case remove.Parsed():
 		handleRemove(*dryRun, *removeAll, *removeVersions)
+	case select_.Parsed():
+		handleSelect(*dryRun, *selectVersions)
 	}
 }
 
@@ -176,6 +185,24 @@ func handleRemove(dryRun bool, all bool, versions []string) {
 				logging.IfTaskError(os.Remove(match))
 			}
 		}
+	}
+}
+
+func handleSelect(dryRun bool, versions []string) {
+	logging.IfErrorf(len(versions) == 0, "No version to select, skipping.")
+	logging.IfErrorf(len(versions) > 1, "More then one version to select, skipping.")
+
+	logging.Printf("Selecting %s as the active Go version", versions[0])
+
+	root := gomanRoot()
+	versionDirectory := filepath.Join(root, fmt.Sprintf("go%s", versions[0]))
+
+	stat, err := os.Stat(versionDirectory)
+	logging.IfTaskError(err)
+	logging.IfTaskErrorf(!stat.IsDir(), "%s is not a directory", versionDirectory)
+
+	if !dryRun {
+		logging.IfTaskError(selectors.SyncToCurrent(filepath.Split(versionDirectory)))
 	}
 }
 
