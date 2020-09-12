@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/NoizeMe/go-man/pkg/logging"
 	goreleases "github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/posener/cmd"
-	"os"
 	"runtime"
 )
 
@@ -59,51 +58,38 @@ func main() {
 }
 
 func handleReleases(all bool) {
-	fmt.Println("List of available releases:")
+	logging.Printf("List of available releases:")
 
 	releaseList, err := goreleases.ListAll(goreleases.SelectReleaseType(all))
-	if err != nil {
-		handleError("[-] %s", err)
-	}
+	logging.IfTaskError(err)
 
 	for _, r := range releaseList {
-		fmt.Printf("[+] %s\n", r.GetVersionNumber())
+		logging.TaskPrintf("%s", r.GetVersionNumber())
 	}
 }
 
 func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []string) {
 	if len(versions) == 0 {
 		latest, err := goreleases.GetLatest()
-		if err != nil {
-			handleError("[-] %s", err)
-		}
+		logging.IfError(err)
 
 		versions = []string{latest.GetVersionNumber()}
 	}
 
 	for _, version := range versions {
-		fmt.Printf("Installing %s %s-%s:\n", version, operatingSystem, arch)
+		logging.Printf("Installing %s %s-%s:", version, operatingSystem, arch)
 
 		release, releasePresent, err := goreleases.GetForVersion(goreleases.SelectReleaseType(all), version)
-		if err != nil {
-			handleError("[-] %s", err)
-		}
-		if !releasePresent {
-			handleError("[-] %s", "release with version "+version+" not present")
-		}
+		logging.IfTaskError(err)
+		logging.IfTaskErrorf(!releasePresent, "release with version %s not present", version)
 
 		files := release.FindFiles(operatingSystem, arch, goreleases.ArchiveFile)
-		if len(files) == 0 {
-			handleError("[-] %s", "release "+version+" with "+operatingSystem+"/"+arch+" not present")
-		}
+		logging.IfTaskErrorf(len(files) == 0, "release %s with %s-%s not present", version, operatingSystem, arch)
 
 		for _, file := range files {
-			fmt.Printf("[+] Considering file: %s\n", file.GetUrl())
+			logging.TaskPrintf("Downloading: %s", file.GetUrl())
+			logging.TaskPrintf("Extracting: %s", file.Filename)
+			logging.TaskPrintf("Installing: %s to $GOROOT/%s", file.Version, file.Version)
 		}
 	}
-}
-
-func handleError(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stderr, format+"\n", args...)
-	os.Exit(2)
 }
