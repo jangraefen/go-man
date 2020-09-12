@@ -22,11 +22,7 @@ var (
 		"If set, not only stable but all releases are listed.",
 	)
 
-	install         = root.SubCommand("install", "This sub command is used to install new version of the Go SDK.")
-	installVersions = install.Args(
-		"[versions]",
-		"The version that should be installed. May be 'latest' or any version number.",
-	)
+	install    = root.SubCommand("install", "This sub command is used to install new version of the Go SDK.")
 	installAll = install.Bool(
 		"all",
 		false,
@@ -41,6 +37,10 @@ var (
 		"arch",
 		runtime.GOARCH,
 		"Defines for which architecture the Go SDK should be downloaded. By default, the current architecture is chosen.",
+	)
+	installVersions = install.Args(
+		"[versions]",
+		"The version that should be installed. May be 'latest' or any version number.",
 	)
 )
 
