@@ -41,13 +41,10 @@ func ListAll(releaseType ReleaseType) ([]Release, error) {
 		return nil, fmt.Errorf("unexpected status while retrieving releases: %s", response.Status)
 	}
 
+	defer response.Body.Close()
+
 	versions := make([]Release, 0)
 	err = json.NewDecoder(response.Body).Decode(&versions)
-	if err != nil {
-		return nil, err
-	}
-
-	err = response.Body.Close()
 	if err != nil {
 		return nil, err
 	}
