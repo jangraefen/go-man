@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // The FileKind type is a string that describes what nature a ReleaseFile has.
@@ -40,7 +41,7 @@ type Release struct {
 // Since the Version field of a release is prefixed by the string "go", this method returns a substring of this fields that
 // is stripped of that exact prefix, to allow easier processing.
 func (r Release) GetVersionNumber() string {
-	return r.Version[2:]
+	return strings.TrimPrefix(r.Version, "go")
 }
 
 // The FindFiles function returns a sub-slice of all files that match the given operating system and architecture.

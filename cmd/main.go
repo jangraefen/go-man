@@ -6,9 +6,11 @@ import (
 	goreleases "github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/mholt/archiver/v3"
 	"github.com/posener/cmd"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 var (
@@ -138,11 +140,23 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []st
 }
 
 func handleRemove(dryRun bool, all bool, versions []string) {
+	root := gomanRoot()
+
 	logging.IfErrorf(!all && len(versions) == 0, "No versions to remove, skipping.")
 	logging.IfErrorf(all && len(versions) > 0, "Both all flag and versions given, skipping.")
 
+	if all {
+		fileInfos, err := ioutil.ReadDir(root)
+		logging.IfError(err)
+
+		for _, fileInfo := range fileInfos {
+			if fileInfo.IsDir() && strings.HasPrefix(fileInfo.Name(), "go") {
+				versions = append(versions, strings.TrimPrefix(fileInfo.Name(), "go"))
+			}
+		}
+	}
+
 	for _, version := range versions {
-		root := gomanRoot()
 		versionDirectory := filepath.Join(root, fmt.Sprintf("go%s", version))
 		versionArchive := filepath.Join(root, fmt.Sprintf("go%s*", version))
 
