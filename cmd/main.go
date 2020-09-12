@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/NoizeMe/go-man/pkg/logging"
 	goreleases "github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/mholt/archiver/v3"
@@ -25,7 +26,7 @@ var (
 		"If set, not only stable but all releases are listed.",
 	)
 
-	install    = root.SubCommand("install", "This sub command is used to install new version of the Go SDK.")
+	install    = root.SubCommand("install", "Installs one or more new versions of the Go SDK.")
 	installAll = install.Bool(
 		"all",
 		false,
@@ -43,7 +44,18 @@ var (
 	)
 	installVersions = install.Args(
 		"[versions]",
-		"The version that should be installed. May be 'latest' or any version number.",
+		"The versions that should be installed. May be 'latest' or any version number.",
+	)
+
+	remove    = root.SubCommand("remove", "Remove an existing installation of the Go SDK.")
+	removeAll = remove.Bool(
+		"all",
+		false,
+		"If set, all installed versions will be deleted.",
+	)
+	removeVersions = remove.Args(
+		"[versions]",
+		"The versions that should be removed.",
 	)
 )
 
@@ -57,6 +69,8 @@ func main() {
 		handleReleases(*releasesAll)
 	case install.Parsed():
 		handleInstall(*dryRun, *installAll, *installOS, *installArch, *installVersions)
+	case remove.Parsed():
+		handleRemove(*dryRun, *removeAll, *removeVersions)
 	}
 }
 
@@ -118,6 +132,34 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []st
 			logging.TaskPrintf("Extracting: %s", file.Filename)
 			if !dryRun {
 				logging.IfTaskError(archiver.Unarchive(destinationFile, destinationDirectory))
+			}
+		}
+	}
+}
+
+func handleRemove(dryRun bool, all bool, versions []string) {
+	logging.IfErrorf(!all && len(versions) == 0, "No versions to remove, skipping.")
+	logging.IfErrorf(all && len(versions) > 0, "Both all flag and versions given, skipping.")
+
+	for _, version := range versions {
+		root := gomanRoot()
+		versionDirectory := filepath.Join(root, fmt.Sprintf("go%s", version))
+		versionArchive := filepath.Join(root, fmt.Sprintf("go%s*", version))
+
+		logging.Printf("Deleting %s", version)
+
+		logging.TaskPrintf("Removing SDK: %s", versionDirectory)
+		if !dryRun {
+			logging.IfTaskError(os.RemoveAll(versionDirectory))
+		}
+
+		matches, err := filepath.Glob(versionArchive)
+		logging.IfTaskError(err)
+
+		for _, match := range matches {
+			logging.TaskPrintf("Removing SDK archive: %s", match)
+			if !dryRun {
+				logging.IfTaskError(os.Remove(match))
 			}
 		}
 	}
