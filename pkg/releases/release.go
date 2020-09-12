@@ -1,6 +1,12 @@
 package releases
 
-import "fmt"
+import (
+	"crypto/sha256"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+)
 
 // The FileKind type is a string that describes what nature a ReleaseFile has.
 type FileKind string
@@ -74,4 +80,51 @@ type ReleaseFile struct {
 // The GetUrl function returns the URL where the file can be downloaded from.
 func (f ReleaseFile) GetUrl() string {
 	return fmt.Sprintf(fileUrlTemplate, f.Filename)
+}
+
+// The Download function loads the receiving release file to the given destination file.
+// By calling this function, the GetUrl function is called, a HTTP GET request to result of that function is performed and
+// the response is then saved to the destination file. If the HTTP response has a status code other then 200, an error is
+// returned as well.
+func (f ReleaseFile) Download(destinationFile string) error {
+	response, err := http.Get(f.GetUrl())
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != 200 {
+		return fmt.Errorf("unexpected status while retrieving release file: %s", response.Status)
+	}
+
+	defer response.Body.Close()
+
+	file, err := os.Create(destinationFile)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	if _, err := io.Copy(file, response.Body); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// The VerifySame function checks if a given file has the correct checksum.
+// It first builds the sha256 of the given file and then compares that value against the Sha256 attribute.
+func (f ReleaseFile) VerifySame(fileName string) (bool, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return false, err
+	}
+
+	checksum := fmt.Sprintf("%x", hash.Sum(nil))
+	return f.Sha256 == checksum, nil
 }

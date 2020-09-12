@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/NoizeMe/go-man/pkg/logging"
 	goreleases "github.com/NoizeMe/go-man/pkg/releases"
+	"github.com/mholt/archiver/v3"
 	"github.com/posener/cmd"
+	"path/filepath"
 	"runtime"
 )
 
@@ -87,9 +89,31 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []st
 		logging.IfTaskErrorf(len(files) == 0, "release %s with %s-%s not present", version, operatingSystem, arch)
 
 		for _, file := range files {
+			destinationFile := filepath.Join(".", file.Filename)
+			destinationDirectory := filepath.Join(".", file.Version)
+
 			logging.TaskPrintf("Downloading: %s", file.GetUrl())
+			if !dryRun {
+				logging.IfTaskError(file.Download(destinationFile))
+			}
+
+			logging.TaskPrintf("Verifying download checksum: %s", file.Sha256)
+			if !dryRun {
+				same, err := file.VerifySame(destinationFile)
+				logging.IfTaskError(err)
+				logging.IfTaskErrorf(
+					!same,
+					"Downloaded file %s could not be verified because the checksums did not match",
+					destinationFile,
+				)
+			}
+
 			logging.TaskPrintf("Extracting: %s", file.Filename)
-			logging.TaskPrintf("Installing: %s to $GOROOT/%s", file.Version, file.Version)
+			if !dryRun {
+				logging.IfTaskError(archiver.Unarchive(destinationFile, destinationDirectory))
+			}
+
+			// logging.TaskPrintf("Installing: %s to $GOROOT/%s", file.Version, file.Version)
 		}
 	}
 }
