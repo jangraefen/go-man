@@ -4,6 +4,6 @@ end_of_line = lf
 indent_size = tab
 indent_style = tab
 insert_final_newline = true
-max_line_length = 160
+max_line_length = 125
 tab_width = 4
 trim_trailing_whitespace = true
