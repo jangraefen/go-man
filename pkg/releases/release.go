@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 // The FileKind type is a string that describes what nature a ReleaseFile has.
@@ -83,10 +84,22 @@ func (f ReleaseFile) GetUrl() string {
 }
 
 // The Download function loads the receiving release file to the given destination file.
-// By calling this function, the GetUrl function is called, a HTTP GET request to result of that function is performed and
-// the response is then saved to the destination file. If the HTTP response has a status code other then 200, an error is
-// returned as well.
-func (f ReleaseFile) Download(destinationFile string) error {
+// If the destination file already exists it is overwritten, except if the skipIfPresent flag is set to true. In this case
+// nothing will be downloaded.
+func (f ReleaseFile) Download(destinationFile string, skipIfPresent bool) error {
+	if stat, err := os.Stat(destinationFile); err == nil && !stat.IsDir() {
+		if skipIfPresent {
+			return nil
+		} else if err = os.Remove(destinationFile); err != nil {
+			return err
+		}
+	}
+
+	directory, _ := filepath.Split(destinationFile)
+	if err := os.MkdirAll(directory, 0755); err != nil {
+		return err
+	}
+
 	response, err := http.Get(f.GetUrl())
 	if err != nil {
 		return err

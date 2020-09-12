@@ -5,6 +5,7 @@ import (
 	goreleases "github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/mholt/archiver/v3"
 	"github.com/posener/cmd"
+	"os"
 	"path/filepath"
 	"runtime"
 )
@@ -89,15 +90,21 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []st
 		logging.IfTaskErrorf(len(files) == 0, "release %s with %s-%s not present", version, operatingSystem, arch)
 
 		for _, file := range files {
-			destinationFile := filepath.Join(".", file.Filename)
-			destinationDirectory := filepath.Join(".", file.Version)
+			root := gomanRoot()
+			destinationFile := filepath.Join(root, file.Filename)
+			destinationDirectory := filepath.Join(root, file.Version)
+
+			if stat, err := os.Stat(destinationDirectory); err == nil && stat.IsDir() {
+				logging.TaskPrintf("Version %s already installed, skipping.", file.Version)
+				continue
+			}
 
 			logging.TaskPrintf("Downloading: %s", file.GetUrl())
 			if !dryRun {
-				logging.IfTaskError(file.Download(destinationFile))
+				logging.IfTaskError(file.Download(destinationFile, false))
 			}
 
-			logging.TaskPrintf("Verifying download checksum: %s", file.Sha256)
+			logging.TaskPrintf("Verifying integrity: %s", file.Sha256)
 			if !dryRun {
 				same, err := file.VerifySame(destinationFile)
 				logging.IfTaskError(err)
@@ -112,8 +119,20 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []st
 			if !dryRun {
 				logging.IfTaskError(archiver.Unarchive(destinationFile, destinationDirectory))
 			}
-
-			// logging.TaskPrintf("Installing: %s to $GOROOT/%s", file.Version, file.Version)
 		}
 	}
+}
+
+func gomanRoot() string {
+	root := os.Getenv("GOMANROOT")
+	if len(root) > 0 {
+		return root
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return filepath.Join("/", ".gomanroot")
+	}
+
+	return filepath.Join(homeDir, ".gomanroot")
 }
