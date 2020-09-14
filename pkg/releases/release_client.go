@@ -3,7 +3,9 @@ package releases
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/go-version"
 	"net/http"
+	"sort"
 )
 
 // The ReleaseType type is a string that describes what kind of release types should be returned by a release list.
@@ -16,6 +18,10 @@ const (
 	IncludeAll = ReleaseType("all")
 	// The IncludeStable release type will include each release that is currently considered stable.
 	IncludeStable = ReleaseType("stable")
+)
+
+var (
+	emptyRelease = &Release{}
 )
 
 // The SelectReleaseType function returns the release type that matches the input parameters best.
@@ -32,7 +38,7 @@ func SelectReleaseType(all bool) ReleaseType {
 // The ListAll function retrieves a list of all Golang releases from the official website.
 // This list is retrieved by querying a JSON endpoint that is provided by the official Golang website. If the endpoint
 // responds with any other status code than 200, an error is returned.
-func ListAll(releaseType ReleaseType) ([]Release, error) {
+func ListAll(releaseType ReleaseType) (Collection, error) {
 	response, err := http.Get(fmt.Sprintf(releaseListUrlTemplate, releaseType))
 	if err != nil {
 		return nil, err
@@ -43,7 +49,7 @@ func ListAll(releaseType ReleaseType) ([]Release, error) {
 
 	defer response.Body.Close()
 
-	versions := make([]Release, 0)
+	versions := make([]*Release, 0)
 	err = json.NewDecoder(response.Body).Decode(&versions)
 	if err != nil {
 		return nil, err
@@ -53,31 +59,31 @@ func ListAll(releaseType ReleaseType) ([]Release, error) {
 }
 
 // The GetLatest function retrieves the latest stable release of the Golang SDK.
-func GetLatest() (Release, error) {
+func GetLatest() (*Release, error) {
 	releases, err := ListAll(IncludeStable)
 	if err != nil {
-		return Release{}, err
+		return emptyRelease, err
 	}
 
-	// TODO This is working by accident, not by design. It would be much better to actually parse the version numbers here.
-	return releases[0], nil
+	sort.Sort(releases)
+	return releases[releases.Len()-1], nil
 }
 
 // The GetForVersion function returns the Golang release with a given version, if such a release exists.
 // A list of releases is retrieved, honoring the given release type as a filter, and then scanned for a release that has the
 // same version number as the version variable. If no such release can be found, an empty release object is returned and the
 // boolean return value will be set to false.
-func GetForVersion(releaseType ReleaseType, version string) (Release, bool, error) {
+func GetForVersion(releaseType ReleaseType, version *version.Version) (*Release, bool, error) {
 	releases, err := ListAll(releaseType)
 	if err != nil {
-		return Release{}, false, err
+		return emptyRelease, false, err
 	}
 
 	for _, release := range releases {
-		if version == release.GetVersionNumber() {
+		if version.Equal(release.GetVersionNumber()) {
 			return release, true, nil
 		}
 	}
 
-	return Release{}, false, nil
+	return emptyRelease, false, nil
 }

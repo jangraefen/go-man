@@ -3,6 +3,7 @@ package releases
 import (
 	"crypto/sha256"
 	"fmt"
+	"github.com/hashicorp/go-version"
 	"io"
 	"net/http"
 	"os"
@@ -40,8 +41,13 @@ type Release struct {
 // The GetVersionNumber function returns the version number for a Golang release.
 // Since the Version field of a release is prefixed by the string "go", this method returns a substring of this fields that
 // is stripped of that exact prefix, to allow easier processing.
-func (r Release) GetVersionNumber() string {
-	return strings.TrimPrefix(r.Version, "go")
+func (r Release) GetVersionNumber() *version.Version {
+	v, err := version.NewVersion(strings.TrimPrefix(r.Version, "go"))
+	if err != nil {
+		panic(err)
+	}
+
+	return v
 }
 
 // The FindFiles function returns a sub-slice of all files that match the given operating system and architecture.
@@ -141,4 +147,22 @@ func (f ReleaseFile) VerifySame(fileName string) (bool, error) {
 
 	checksum := fmt.Sprintf("%x", hash.Sum(nil))
 	return f.Sha256 == checksum, nil
+}
+
+// The Collection type is a type-alias for a slice of releases, which also implements sort.Interface.
+type Collection []*Release
+
+// See sort.Interface for more details.
+func (c Collection) Len() int {
+	return len(c)
+}
+
+// See sort.Interface for more details.
+func (c Collection) Less(i, j int) bool {
+	return c[i].GetVersionNumber().LessThan(c[j].GetVersionNumber())
+}
+
+// See sort.Interface for more details.
+func (c Collection) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
 }

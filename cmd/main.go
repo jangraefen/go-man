@@ -5,10 +5,12 @@ import (
 	"github.com/NoizeMe/go-man/pkg/logging"
 	goreleases "github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/NoizeMe/go-man/pkg/selectors"
+	"github.com/hashicorp/go-version"
 	"github.com/mholt/archiver/v3"
 	"github.com/posener/cmd"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -96,23 +98,28 @@ func handleReleases(all bool) {
 	}
 }
 
-func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []string) {
-	if len(versions) == 0 {
+func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames []string) {
+	if len(versionNames) == 0 {
 		latest, err := goreleases.GetLatest()
 		logging.IfError(err)
 
-		versions = []string{latest.GetVersionNumber()}
+		versionNames = []string{latest.GetVersionNumber().String()}
 	}
 
-	for _, version := range versions {
-		logging.Printf("Installing %s %s-%s:", version, operatingSystem, arch)
+	for _, versionName := range versionNames {
+		parsedVersion, err := version.NewVersion(versionName)
+		if err != nil {
+			logging.IfTaskError(err)
+		}
 
-		release, releasePresent, err := goreleases.GetForVersion(goreleases.SelectReleaseType(all), version)
+		logging.Printf("Installing %s %s-%s:", parsedVersion, operatingSystem, arch)
+
+		release, releasePresent, err := goreleases.GetForVersion(goreleases.SelectReleaseType(all), parsedVersion)
 		logging.IfTaskError(err)
-		logging.IfTaskErrorf(!releasePresent, "release with version %s not present", version)
+		logging.IfTaskErrorf(!releasePresent, "release with versionName %s not present", parsedVersion)
 
 		files := release.FindFiles(operatingSystem, arch, goreleases.ArchiveFile)
-		logging.IfTaskErrorf(len(files) == 0, "release %s with %s-%s not present", version, operatingSystem, arch)
+		logging.IfTaskErrorf(len(files) == 0, "release %s with %s-%s not present", parsedVersion, operatingSystem, arch)
 
 		for _, file := range files {
 			root := gomanRoot()
@@ -144,15 +151,26 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versions []st
 			if !dryRun {
 				logging.IfTaskError(archiver.Unarchive(destinationFile, destinationDirectory))
 			}
+
+			goBinaryPath := filepath.Join(destinationDirectory, "go", "bin", "go")
+			logging.TaskPrintf("Verifying installation: %s", goBinaryPath)
+
+			command := exec.Command(goBinaryPath, "version")
+			output, err := command.Output()
+			logging.IfTaskError(err)
+
+			actualOutput := strings.TrimSpace(string(output))
+			expectedOutput := fmt.Sprintf("go version %s %s/%s", file.Version, file.OS, file.Arch)
+			logging.IfTaskErrorf(expectedOutput != actualOutput, "Could not verify installation: %s", actualOutput)
 		}
 	}
 }
 
-func handleRemove(dryRun bool, all bool, versions []string) {
+func handleRemove(dryRun bool, all bool, versionNames []string) {
 	root := gomanRoot()
 
-	logging.IfErrorf(!all && len(versions) == 0, "No versions to remove, skipping.")
-	logging.IfErrorf(all && len(versions) > 0, "Both all flag and versions given, skipping.")
+	logging.IfErrorf(!all && len(versionNames) == 0, "No versionNames to remove, skipping.")
+	logging.IfErrorf(all && len(versionNames) > 0, "Both all flag and versionNames given, skipping.")
 
 	if all {
 		fileInfos, err := ioutil.ReadDir(root)
@@ -160,16 +178,21 @@ func handleRemove(dryRun bool, all bool, versions []string) {
 
 		for _, fileInfo := range fileInfos {
 			if fileInfo.IsDir() && strings.HasPrefix(fileInfo.Name(), "go") {
-				versions = append(versions, strings.TrimPrefix(fileInfo.Name(), "go"))
+				versionNames = append(versionNames, strings.TrimPrefix(fileInfo.Name(), "go"))
 			}
 		}
 	}
 
-	for _, version := range versions {
-		versionDirectory := filepath.Join(root, fmt.Sprintf("go%s", version))
-		versionArchive := filepath.Join(root, fmt.Sprintf("go%s*", version))
+	for _, versionName := range versionNames {
+		parsedVersion, err := version.NewVersion(versionName)
+		if err != nil {
+			logging.IfTaskError(err)
+		}
 
-		logging.Printf("Deleting %s", version)
+		versionDirectory := filepath.Join(root, fmt.Sprintf("go%s", parsedVersion))
+		versionArchive := filepath.Join(root, fmt.Sprintf("go%s*", parsedVersion))
+
+		logging.Printf("Deleting %s", parsedVersion)
 
 		logging.TaskPrintf("Removing SDK: %s", versionDirectory)
 		if !dryRun {
@@ -188,14 +211,19 @@ func handleRemove(dryRun bool, all bool, versions []string) {
 	}
 }
 
-func handleSelect(dryRun bool, versions []string) {
-	logging.IfErrorf(len(versions) == 0, "No version to select, skipping.")
-	logging.IfErrorf(len(versions) > 1, "More then one version to select, skipping.")
+func handleSelect(dryRun bool, versionNames []string) {
+	logging.IfErrorf(len(versionNames) == 0, "No version to select, skipping.")
+	logging.IfErrorf(len(versionNames) > 1, "More then one version to select, skipping.")
 
-	logging.Printf("Selecting %s as the active Go version", versions[0])
+	parsedVersion, err := version.NewVersion(versionNames[0])
+	if err != nil {
+		logging.IfError(err)
+	}
+
+	logging.Printf("Selecting %s as the active Go version", parsedVersion)
 
 	root := gomanRoot()
-	versionDirectory := filepath.Join(root, fmt.Sprintf("go%s", versions[0]))
+	versionDirectory := filepath.Join(root, fmt.Sprintf("go%s", parsedVersion))
 
 	stat, err := os.Stat(versionDirectory)
 	logging.IfTaskError(err)
