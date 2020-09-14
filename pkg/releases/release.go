@@ -42,12 +42,11 @@ type Release struct {
 // Since the Version field of a release is prefixed by the string "go", this method returns a substring of this fields that
 // is stripped of that exact prefix, to allow easier processing.
 func (r Release) GetVersionNumber() *version.Version {
-	v, err := version.NewVersion(strings.TrimPrefix(r.Version, "go"))
-	if err != nil {
-		panic(err)
+	if r.Version == "" {
+		return nil
 	}
 
-	return v
+	return version.Must(version.NewVersion(strings.TrimPrefix(r.Version, "go")))
 }
 
 // The FindFiles function returns a sub-slice of all files that match the given operating system and architecture.
@@ -87,6 +86,10 @@ type ReleaseFile struct {
 
 // The GetUrl function returns the URL where the file can be downloaded from.
 func (f ReleaseFile) GetUrl() string {
+	if len(f.Filename) == 0 {
+		return ""
+	}
+
 	return fmt.Sprintf(fileUrlTemplate, f.Filename)
 }
 

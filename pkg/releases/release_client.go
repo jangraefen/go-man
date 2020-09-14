@@ -58,9 +58,9 @@ func ListAll(releaseType ReleaseType) (Collection, error) {
 	return versions, nil
 }
 
-// The GetLatest function retrieves the latest stable release of the Golang SDK.
-func GetLatest() (*Release, error) {
-	releases, err := ListAll(IncludeStable)
+// The GetLatest function retrieves the latest release of the Golang SDK.
+func GetLatest(releaseType ReleaseType) (*Release, error) {
+	releases, err := ListAll(releaseType)
 	if err != nil {
 		return emptyRelease, err
 	}

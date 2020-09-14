@@ -100,7 +100,7 @@ func handleReleases(all bool) {
 
 func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames []string) {
 	if len(versionNames) == 0 {
-		latest, err := goreleases.GetLatest()
+		latest, err := goreleases.GetLatest(goreleases.SelectReleaseType(all))
 		logging.IfError(err)
 
 		versionNames = []string{latest.GetVersionNumber().String()}
