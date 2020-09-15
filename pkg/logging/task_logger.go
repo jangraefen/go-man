@@ -15,11 +15,6 @@ func Printf(format string, args ...interface{}) {
 	fmt.Printf(format+"\n", args...)
 }
 
-// The Error function logs any error to system err and causes the application to exit.
-func Error(err error) {
-	Errorf("%s", err)
-}
-
 // The Errorf function logs any string to system err and causes the application to exit.
 // It provides the same formatting as the fmt package does.
 func Errorf(format string, args ...interface{}) {
@@ -31,11 +26,6 @@ func Errorf(format string, args ...interface{}) {
 // It provides the same formatting as the fmt package does.
 func TaskPrintf(format string, args ...interface{}) {
 	fmt.Printf("[+] "+format+"\n", args...)
-}
-
-// The TaskError function logs any error to system err, but indenting it, and causes the application to exit.
-func TaskError(err error) {
-	TaskErrorf("%s", err)
 }
 
 // The TaskErrorf function logs any string to system err, but indenting it, and causes the application to exit.
