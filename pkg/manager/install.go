@@ -28,14 +28,13 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	destinationFile := filepath.Join(m.RootDirectory, file.Filename)
 	destinationDirectory := filepath.Join(m.RootDirectory, file.Version)
 
-	if stat, err := os.Stat(destinationDirectory); err == nil && stat.IsDir() {
-		logging.TaskPrintf("Version %s already installed, skipping.", file.Version)
-		return
-	}
-
-	logging.TaskPrintf("Downloading: %s", file.GetUrl())
-	if !m.DryRun {
-		logging.IfTaskError(file.Download(destinationFile, false))
+	if _, err := os.Stat(destinationFile); err != nil && os.IsNotExist(err) {
+		logging.TaskPrintf("Downloading: %s", file.GetUrl())
+		if !m.DryRun {
+			logging.IfTaskError(file.Download(destinationFile, false))
+		}
+	} else {
+		logging.TaskPrintf("Downloading: Skipping, since %s is already present", destinationFile)
 	}
 
 	logging.TaskPrintf("Verifying integrity: %s", file.Sha256)
@@ -49,9 +48,13 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 		)
 	}
 
-	logging.TaskPrintf("Extracting: %s", file.Filename)
-	if !m.DryRun {
-		logging.IfTaskError(archiver.Unarchive(destinationFile, destinationDirectory))
+	if _, err := os.Stat(destinationDirectory); err != nil && os.IsNotExist(err) {
+		logging.TaskPrintf("Extracting: %s", file.Filename)
+		if !m.DryRun {
+			logging.IfTaskError(archiver.Unarchive(destinationFile, destinationDirectory))
+		}
+	} else {
+		logging.TaskPrintf("Extracting: Skipping, since %s is already extracted", file.Version)
 	}
 
 	logging.TaskPrintf("Verifying installation: %s", destinationDirectory)
