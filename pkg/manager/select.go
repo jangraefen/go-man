@@ -19,7 +19,7 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
-	logging.Printf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
+	logging.TaskPrintf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
 	if !m.DryRun {
 		err := link(versionDirectory, selectedDirectory)
 		logging.IfTaskError(err)

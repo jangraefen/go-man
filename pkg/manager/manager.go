@@ -3,6 +3,7 @@ package manager
 import (
 	"github.com/hashicorp/go-version"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -36,17 +37,17 @@ func NewManager(rootDirectory string, dryRun bool) (*GoManager, error) {
 	}
 
 	for _, fileInfo := range fileInfos {
-		if fileInfo.IsDir() {
+		if fileInfo.IsDir() || fileInfo.Mode()&os.ModeSymlink != 0 {
 			detectedVersion, err := detectGoVersion(filepath.Join(rootDirectory, fileInfo.Name()))
 			if err != nil {
-				return nil, err
+				continue
 			}
 
 			if fileInfo.Name() == selectedDirectoryName {
 				selectedVersion = detectedVersion
+			} else {
+				installedVersions = append(installedVersions, detectedVersion)
 			}
-
-			installedVersions = append(installedVersions, detectedVersion)
 		}
 	}
 

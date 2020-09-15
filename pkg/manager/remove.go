@@ -10,7 +10,10 @@ import (
 
 // The RemoveAll function removes all current installations of the Go SDK.
 func (m *GoManager) RemoveAll() {
-	for _, versionNumber := range m.InstalledVersions {
+	installedVersions := make(version.Collection, len(m.InstalledVersions))
+	copy(installedVersions, m.InstalledVersions)
+
+	for _, versionNumber := range installedVersions {
 		m.Remove(versionNumber)
 	}
 }
@@ -21,9 +24,13 @@ func (m *GoManager) Remove(versionNumber *version.Version) {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	versionArchive := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s*", versionNumber))
 
-	logging.Printf("Deleting %s", versionNumber)
+	if !m.DryRun && versionNumber.Equal(m.SelectedVersion) {
+		m.Unselect()
+	}
 
-	logging.TaskPrintf("Removing SDK: %s", versionDirectory)
+	logging.Printf("Removing %s", versionNumber)
+
+	logging.TaskPrintf("Deleting SDK: %s", versionDirectory)
 	if !m.DryRun {
 		logging.IfTaskError(os.RemoveAll(versionDirectory))
 	}
@@ -32,7 +39,7 @@ func (m *GoManager) Remove(versionNumber *version.Version) {
 	logging.IfTaskError(err)
 
 	for _, match := range matches {
-		logging.TaskPrintf("Removing SDK archive: %s", match)
+		logging.TaskPrintf("Deleting SDK archive: %s", match)
 		if !m.DryRun {
 			logging.IfTaskError(os.Remove(match))
 		}
@@ -45,10 +52,6 @@ func (m *GoManager) Remove(versionNumber *version.Version) {
 
 				break
 			}
-		}
-
-		if versionNumber.Equal(m.SelectedVersion) {
-			m.Unselect()
 		}
 	}
 }
