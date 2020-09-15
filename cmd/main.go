@@ -65,6 +65,8 @@ var (
 	)
 
 	unselect = root.SubCommand("unselect", "Unselects the active installation of the Go SDK.")
+
+	cleanup = root.SubCommand("cleanup", "Removes all installations of the Go SDK that are not considered stable.")
 )
 
 func main() {
@@ -87,6 +89,8 @@ func main() {
 		handleSelect(*dryRun, *selectVersions)
 	case unselect.Parsed():
 		handleUnselect(*dryRun)
+	case cleanup.Parsed():
+		handleCleanup(*dryRun)
 	}
 }
 
@@ -162,6 +166,12 @@ func handleUnselect(dryRun bool) {
 	goManager, err := manager.NewManager(gomanRoot(), dryRun)
 	logging.IfError(err)
 	goManager.Unselect()
+}
+
+func handleCleanup(dryRun bool) {
+	goManager, err := manager.NewManager(gomanRoot(), dryRun)
+	logging.IfError(err)
+	goManager.Cleanup()
 }
 
 func gomanRoot() string {
