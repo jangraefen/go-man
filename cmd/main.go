@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/NoizeMe/go-man/pkg/logging"
 	"github.com/NoizeMe/go-man/pkg/manager"
-	goreleases "github.com/NoizeMe/go-man/pkg/releases"
+	"github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/hashicorp/go-version"
 	"github.com/posener/cmd"
 	"os"
@@ -19,8 +19,8 @@ var (
 		"If set, all actions are done as if they were successful, but no persistent changes will be performed.",
 	)
 
-	releases    = root.SubCommand("releases", "Lists all available releases of the Go SDK.")
-	releasesAll = releases.Bool(
+	releases_   = root.SubCommand("releases", "Lists all available releases of the Go SDK.")
+	releasesAll = releases_.Bool(
 		"all",
 		false,
 		"If set, not only stable but all releases are listed.",
@@ -73,7 +73,7 @@ func main() {
 	_ = root.Parse()
 
 	switch {
-	case releases.Parsed():
+	case releases_.Parsed():
 		handleReleases(*releasesAll)
 	case install.Parsed():
 		handleInstall(*dryRun, *installAll, *installOS, *installArch, *installVersions)
@@ -89,7 +89,7 @@ func main() {
 func handleReleases(all bool) {
 	logging.Printf("List of available releases:")
 
-	releaseList, err := goreleases.ListAll(goreleases.SelectReleaseType(all))
+	releaseList, err := releases.ListAll(releases.SelectReleaseType(all))
 	logging.IfTaskError(err)
 
 	for _, r := range releaseList {
@@ -99,7 +99,7 @@ func handleReleases(all bool) {
 
 func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames []string) {
 	if len(versionNames) == 0 {
-		latest, err := goreleases.GetLatest(goreleases.SelectReleaseType(all))
+		latest, err := releases.GetLatest(releases.SelectReleaseType(all))
 		logging.IfError(err)
 
 		versionNames = []string{latest.GetVersionNumber().String()}
@@ -113,7 +113,7 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames 
 
 		goManager, err := manager.NewManager(gomanRoot(), dryRun)
 		logging.IfError(err)
-		goManager.Install(parsedVersion, operatingSystem, arch, goreleases.SelectReleaseType(all))
+		goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all))
 	}
 }
 
