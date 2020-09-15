@@ -72,6 +72,10 @@ func main() {
 	// The program will exit afterwards.
 	_ = root.Parse()
 
+	if stat, err := os.Stat(gomanRoot()); err != nil && os.IsNotExist(err) || !stat.IsDir() {
+		logging.IfError(os.MkdirAll(gomanRoot(), 0755))
+	}
+
 	switch {
 	case releases_.Parsed():
 		handleReleases(*releasesAll)

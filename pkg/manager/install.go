@@ -58,7 +58,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	if !m.DryRun {
 		detectedVersion, err := detectGoVersion(destinationDirectory)
 		logging.IfTaskError(err)
-		logging.IfTaskErrorf(detectedVersion != versionNumber, "Could not verify installation: %s", detectedVersion)
+		logging.IfTaskErrorf(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
 
 		m.InstalledVersions = append(m.InstalledVersions, versionNumber)
 		sort.Sort(m.InstalledVersions)

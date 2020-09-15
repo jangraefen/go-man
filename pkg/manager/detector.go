@@ -7,23 +7,24 @@ import (
 	"github.com/hashicorp/go-version"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 func detectGoVersion(sdkDirectory string) (*version.Version, error) {
-	command := exec.Command(filepath.Join(sdkDirectory, "go", "bin", "go"), "scannedVersion")
+	command := exec.Command(filepath.Join(sdkDirectory, "go", "bin", "go"), "version")
 	output, err := command.Output()
 	if err != nil {
 		return nil, err
 	}
 
-	var scannedVersion string
-	matches, err := fmt.Fscanf(bytes.NewReader(output), "go scannedVersion %s %s/%s\n", scannedVersion)
+	var scannedVersion, osAndArch string
+	matches, err := fmt.Fscanf(bytes.NewReader(output), "go version %s %s\n", &scannedVersion, &osAndArch)
 	if err != nil {
 		return nil, err
 	}
-	if matches != 3 {
-		return nil, errors.New("could not detect go scannedVersion since output did had the expected format")
+	if matches != 2 {
+		return nil, errors.New("could not detect go version since output did had the expected format")
 	}
 
-	return version.NewVersion(scannedVersion)
+	return version.NewVersion(strings.TrimPrefix(scannedVersion, "go"))
 }
