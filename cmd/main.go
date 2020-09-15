@@ -130,8 +130,8 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames 
 func handleUninstall(dryRun bool, all bool, versionNames []string) {
 	root := gomanRoot()
 
-	logging.IfErrorf(!all && len(versionNames) == 0, "No versionNames to uninstall, skipping.")
-	logging.IfErrorf(all && len(versionNames) > 0, "Both all flag and versionNames given, skipping.")
+	logging.IfErrorf(!all && len(versionNames) == 0, "No versions to uninstall, skipping.")
+	logging.IfErrorf(all && len(versionNames) > 0, "Both all flag and versions given, skipping.")
 
 	goManager, err := manager.NewManager(root, dryRun)
 	logging.IfError(err)
