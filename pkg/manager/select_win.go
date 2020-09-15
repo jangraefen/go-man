@@ -23,7 +23,7 @@ func link(sourceDirectory, targetDirectory string) error {
 }
 
 func unlink(directory string) error {
-	return os.Remove(directory)
+	return os.RemoveAll(directory)
 }
 
 // For more details on this function, check https://coolaj86.com/articles/golang-and-windows-and-admins-oh-my/
