@@ -118,14 +118,18 @@ func (f ReleaseFile) Download(destinationFile string, skipIfPresent bool) error 
 		return fmt.Errorf("unexpected status while retrieving release file: %s", response.Status)
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 
 	file, err := os.Create(destinationFile)
 	if err != nil {
 		return err
 	}
 
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	if _, err := io.Copy(file, response.Body); err != nil {
 		return err
@@ -141,7 +145,10 @@ func (f ReleaseFile) VerifySame(fileName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer file.Close()
+
+	defer func() {
+		_ = file.Close()
+	}()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
