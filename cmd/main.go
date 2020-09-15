@@ -19,11 +19,11 @@ var (
 		"If set, all actions are done as if they were successful, but no persistent changes will be performed.",
 	)
 
-	releases_   = root.SubCommand("releases", "Lists all available releases of the Go SDK.")
-	releasesAll = releases_.Bool(
+	list    = root.SubCommand("list", "Lists all available releases of the Go SDK.")
+	listAll = list.Bool(
 		"all",
 		false,
-		"If set, not only stable but all releases are listed.",
+		"By passing this flag, non-stable releases are listed as well.",
 	)
 
 	install    = root.SubCommand("install", "Installs one or more new versions of the Go SDK.")
@@ -79,8 +79,8 @@ func main() {
 	}
 
 	switch {
-	case releases_.Parsed():
-		handleReleases(*releasesAll)
+	case list.Parsed():
+		handleList(*listAll)
 	case install.Parsed():
 		handleInstall(*dryRun, *installAll, *installOS, *installArch, *installVersions)
 	case remove.Parsed():
@@ -94,7 +94,7 @@ func main() {
 	}
 }
 
-func handleReleases(all bool) {
+func handleList(all bool) {
 	logging.Printf("List of available releases:")
 
 	releaseList, err := releases.ListAll(releases.SelectReleaseType(all))
