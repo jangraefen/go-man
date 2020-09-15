@@ -23,6 +23,6 @@ func (m GoManager) Cleanup() {
 	}
 
 	for _, versionToRemove := range versionsToRemove {
-		m.Remove(versionToRemove)
+		m.Uninstall(versionToRemove)
 	}
 }

@@ -8,19 +8,19 @@ import (
 	"path/filepath"
 )
 
-// The RemoveAll function removes all current installations of the Go SDK.
-func (m *GoManager) RemoveAll() {
+// The UninstallAll function removes all current installations of the Go SDK.
+func (m *GoManager) UninstallAll() {
 	installedVersions := make(version.Collection, len(m.InstalledVersions))
 	copy(installedVersions, m.InstalledVersions)
 
 	for _, versionNumber := range installedVersions {
-		m.Remove(versionNumber)
+		m.Uninstall(versionNumber)
 	}
 }
 
-// The Remove function removes an existing installation of the Go SDK.
+// The Uninstall function removes an existing installation of the Go SDK.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
-func (m *GoManager) Remove(versionNumber *version.Version) {
+func (m *GoManager) Uninstall(versionNumber *version.Version) {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	versionArchive := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s*", versionNumber))
 

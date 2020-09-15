@@ -16,7 +16,7 @@ var (
 	dryRun = root.Bool(
 		"dryrun",
 		false,
-		"If set, all actions are done as if they were successful, but no persistent changes will be performed.",
+		"By passing this flag, all actions are done as if they were successful, but no changes will be performed.",
 	)
 
 	list    = root.SubCommand("list", "Lists all available releases of the Go SDK.")
@@ -30,31 +30,31 @@ var (
 	installAll = install.Bool(
 		"all",
 		false,
-		"If set, not only stable but all releases are installable.",
+		"By passing this flag, non-stable releases are installable as well.",
 	)
 	installOS = install.String(
 		"os",
 		runtime.GOOS,
-		"Defines for which operating system the Go SDK should be downloaded. By default, the current OS is chosen.",
+		"Defines the operating system for that the Go SDK will be downloaded.",
 	)
 	installArch = install.String(
 		"arch",
 		runtime.GOARCH,
-		"Defines for which architecture the Go SDK should be downloaded. By default, the current architecture is chosen.",
+		"Defines the processor architecture for that Go SDK will be downloaded.",
 	)
 	installVersions = install.Args(
-		"[versions]",
-		"The versions that should be installed. May be 'latest' or any version number.",
+		"[versions...]",
+		"Versions that should be installed. May be 'latest' or any version number.",
 	)
 
-	remove    = root.SubCommand("remove", "Remove an existing installation of the Go SDK.")
-	removeAll = remove.Bool(
+	uninstall    = root.SubCommand("uninstall", "Uninstall an existing installation of the Go SDK.")
+	uninstallAll = uninstall.Bool(
 		"all",
 		false,
-		"If set, all installed versions will be deleted.",
+		"If set, all installed versions will be removed.",
 	)
-	removeVersions = remove.Args(
-		"[versions]",
+	uninstallVersions = uninstall.Args(
+		"[versions...]",
 		"The versions that should be removed.",
 	)
 
@@ -83,8 +83,8 @@ func main() {
 		handleList(*listAll)
 	case install.Parsed():
 		handleInstall(*dryRun, *installAll, *installOS, *installArch, *installVersions)
-	case remove.Parsed():
-		handleRemove(*dryRun, *removeAll, *removeVersions)
+	case uninstall.Parsed():
+		handleUninstall(*dryRun, *uninstallAll, *uninstallVersions)
 	case select_.Parsed():
 		handleSelect(*dryRun, *selectVersions)
 	case unselect.Parsed():
@@ -127,23 +127,23 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames 
 	}
 }
 
-func handleRemove(dryRun bool, all bool, versionNames []string) {
+func handleUninstall(dryRun bool, all bool, versionNames []string) {
 	root := gomanRoot()
 
-	logging.IfErrorf(!all && len(versionNames) == 0, "No versionNames to remove, skipping.")
+	logging.IfErrorf(!all && len(versionNames) == 0, "No versionNames to uninstall, skipping.")
 	logging.IfErrorf(all && len(versionNames) > 0, "Both all flag and versionNames given, skipping.")
 
 	goManager, err := manager.NewManager(root, dryRun)
 	logging.IfError(err)
 
 	if all {
-		goManager.RemoveAll()
+		goManager.UninstallAll()
 	} else {
 		for _, versionName := range versionNames {
 			versionNumber, err := version.NewVersion(versionName)
 			logging.IfError(err)
 
-			goManager.Remove(versionNumber)
+			goManager.Uninstall(versionNumber)
 		}
 	}
 }
