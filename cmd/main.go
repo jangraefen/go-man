@@ -102,7 +102,9 @@ func handleReleases(all bool) {
 }
 
 func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames []string) {
-	if len(versionNames) == 0 {
+	logging.IfErrorf(len(versionNames) == 0, "No versions given to install, skipping")
+
+	if len(versionNames) == 1 && versionNames[0] == "latest" {
 		latest, err := releases.GetLatest(releases.SelectReleaseType(all))
 		logging.IfError(err)
 
