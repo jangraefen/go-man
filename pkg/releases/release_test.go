@@ -41,12 +41,28 @@ func TestRelease_FindFiles(t *testing.T) {
 		Kind:    ArchiveFile,
 	}
 	sut.Files = []ReleaseFile{expected}
+
 	assert.Len(t, sut.FindFiles("windows", "amd64", ArchiveFile), 1)
 	assert.Equal(t, expected, sut.FindFiles("windows", "amd64", ArchiveFile)[0])
 
 	assert.Len(t, sut.FindFiles("windows", "amd64", InstallerFile), 0)
 	assert.Len(t, sut.FindFiles("windows", "386", ArchiveFile), 0)
 	assert.Len(t, sut.FindFiles("darwin", "amd64", ArchiveFile), 0)
+
+	expected = ReleaseFile{
+		OS:      "",
+		Arch:    "",
+		Version: "go1.15.2",
+		Kind:    SourceFile,
+	}
+	sut.Files = []ReleaseFile{expected}
+
+	assert.Len(t, sut.FindFiles("", "", SourceFile), 1)
+	assert.Equal(t, expected, sut.FindFiles("", "", SourceFile)[0])
+	assert.Len(t, sut.FindFiles("windows", "amd64", SourceFile), 1)
+	assert.Equal(t, expected, sut.FindFiles("windows", "amd64", SourceFile)[0])
+	assert.Len(t, sut.FindFiles("xxx", "yyy", SourceFile), 1)
+	assert.Equal(t, expected, sut.FindFiles("xxx", "yyy", SourceFile)[0])
 }
 
 func TestReleaseFile_GetUrl(t *testing.T) {
