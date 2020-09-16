@@ -61,7 +61,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 
 	logging.TaskPrintf("Verifying installation: %s", destinationDirectory)
 	if !m.DryRun {
-		detectedVersion, err := detectGoVersion(destinationDirectory)
+		detectedVersion, err := detectGoVersion(filepath.Join(destinationDirectory, "go"))
 		logging.IfTaskError(err)
 		logging.IfTaskErrorf(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
 

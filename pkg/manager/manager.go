@@ -42,7 +42,7 @@ func NewManager(rootDirectory string, dryRun bool) (*GoManager, error) {
 
 	for _, fileInfo := range fileInfos {
 		if fileInfo.IsDir() || fileInfo.Mode()&os.ModeSymlink != 0 {
-			detectedVersion, err := detectGoVersion(filepath.Join(rootDirectory, fileInfo.Name()))
+			detectedVersion, err := detectGoVersion(filepath.Join(rootDirectory, fileInfo.Name(), "go"))
 			if err != nil {
 				continue
 			}

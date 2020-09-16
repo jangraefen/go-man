@@ -91,15 +91,15 @@ func TestReleaseFile_Download(t *testing.T) {
 	assert.Error(t, sut.Download(targetFile, false))
 
 	sut.Filename = "go1.15.2.windows-amd64.zip"
-	assert.Nil(t, sut.Download(targetFile, false))
+	assert.NoError(t, sut.Download(targetFile, false))
 
 	stat, err := os.Stat(targetFile)
 	assert.Nil(t, err)
 	assert.Greater(t, stat.Size(), int64(0))
 
-	assert.Nil(t, sut.Download(targetFile, true))
+	assert.NoError(t, sut.Download(targetFile, true))
 	statNew, err := os.Stat(targetFile)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, stat.ModTime(), statNew.ModTime())
 }
 
@@ -117,25 +117,25 @@ func TestReleaseFile_VerifySame(t *testing.T) {
 		Filename: "go1.15.2.windows-amd64.zip",
 	}
 
-	assert.Nil(t, sut.Download(targetFile, false))
-	assert.Nil(t, ioutil.WriteFile(mockFile, []byte("NOT_THE_EXPECTED_CONTENT"), 0600))
+	assert.NoError(t, sut.Download(targetFile, false))
+	assert.NoError(t, ioutil.WriteFile(mockFile, []byte("NOT_THE_EXPECTED_CONTENT"), 0600))
 
 	same, err := sut.VerifySame("I_DO_NOT_EXIST.txt")
 	assert.Error(t, err)
 	assert.False(t, same)
 
 	same, err = sut.VerifySame(targetFile)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.False(t, same)
 
 	sut.Sha256 = "e72782cc6de233188c75b06849368826eaa1b8bd9e1cd766db9466a12b7138ca"
 
 	same, err = sut.VerifySame(mockFile)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.False(t, same)
 
 	same, err = sut.VerifySame(targetFile)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.True(t, same)
 }
 
