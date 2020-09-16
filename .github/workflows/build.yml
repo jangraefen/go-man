@@ -45,32 +45,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Run tests
-        run: go test -v -covermode=count ./...
-
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Go
-        if: success()
-        uses: actions/setup-go@v1
+        run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+      - name: Report coverage
+        uses: codecov/codecov-action@v1
         with:
-          go-version: ^1.15
-      - name: Checkout code
-        uses: actions/checkout@v1
-      - name: Calc coverage
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          go test -v -covermode=count -coverprofile=coverage.out ./...
-      - name: Convert coverage to lcov
-        uses: jandelgado/gcov2lcov-action@v1.0.0
-        with:
-          infile: coverage.out
-          outfile: coverage.lcov
-      - name: Coveralls
-        uses: coverallsapp/github-action@v1.0.1
-        with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: coverage.lcov
+          file: coverage.txt
+          fail_ci_if_error: true
 
   build:
     runs-on: ubuntu-latest
