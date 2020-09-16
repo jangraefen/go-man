@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/go-version"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/hashicorp/go-version"
 )
 
 func detectGoVersion(sdkDirectory string) (*version.Version, error) {

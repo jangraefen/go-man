@@ -2,9 +2,11 @@ package manager
 
 import (
 	"fmt"
-	"github.com/NoizeMe/go-man/pkg/logging"
-	"github.com/hashicorp/go-version"
 	"path/filepath"
+
+	"github.com/hashicorp/go-version"
+
+	"github.com/NoizeMe/go-man/pkg/logging"
 )
 
 // The Select function selects an existing installation of the Go SDK as the active one.

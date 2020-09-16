@@ -1,9 +1,10 @@
 package manager
 
 import (
+	"github.com/hashicorp/go-version"
+
 	"github.com/NoizeMe/go-man/pkg/logging"
 	"github.com/NoizeMe/go-man/pkg/releases"
-	"github.com/hashicorp/go-version"
 )
 
 // The Cleanup function removes all Go SDK installations that are currently not considered stable.

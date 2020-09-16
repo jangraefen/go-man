@@ -3,19 +3,20 @@ package releases
 import (
 	"crypto/sha256"
 	"fmt"
-	"github.com/hashicorp/go-version"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/hashicorp/go-version"
 )
 
 // The FileKind type is a string that describes what nature a ReleaseFile has.
 type FileKind string
 
 const (
-	fileUrlTemplate = "https://golang.org/dl/%s"
+	fileURLTemplate = "https://golang.org/dl/%s"
 
 	// The SourceFile file kind describes source archives of the Golang SDK release.
 	SourceFile = FileKind("source")
@@ -84,13 +85,13 @@ type ReleaseFile struct {
 	Kind FileKind `json:"kind"`
 }
 
-// The GetUrl function returns the URL where the file can be downloaded from.
-func (f ReleaseFile) GetUrl() string {
+// The GetURL function returns the URL where the file can be downloaded from.
+func (f ReleaseFile) GetURL() string {
 	if len(f.Filename) == 0 {
 		return ""
 	}
 
-	return fmt.Sprintf(fileUrlTemplate, f.Filename)
+	return fmt.Sprintf(fileURLTemplate, f.Filename)
 }
 
 // The Download function loads the receiving release file to the given destination file.
@@ -110,7 +111,7 @@ func (f ReleaseFile) Download(destinationFile string, skipIfPresent bool) error 
 		return err
 	}
 
-	response, err := http.Get(f.GetUrl())
+	response, err := http.Get(f.GetURL())
 	if err != nil {
 		return err
 	}

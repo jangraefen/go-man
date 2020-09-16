@@ -1,14 +1,16 @@
 package main
 
 import (
-	"github.com/NoizeMe/go-man/pkg/logging"
-	"github.com/NoizeMe/go-man/pkg/manager"
-	"github.com/NoizeMe/go-man/pkg/releases"
-	"github.com/hashicorp/go-version"
-	"github.com/posener/cmd"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/hashicorp/go-version"
+	"github.com/posener/cmd"
+
+	"github.com/NoizeMe/go-man/pkg/logging"
+	"github.com/NoizeMe/go-man/pkg/manager"
+	"github.com/NoizeMe/go-man/pkg/releases"
 )
 
 var (
@@ -58,8 +60,8 @@ var (
 		"The versions that should be removed.",
 	)
 
-	select_        = root.SubCommand("select", "Selects the active installation of the Go SDK.")
-	selectVersions = select_.Args(
+	selectz        = root.SubCommand("select", "Selects the active installation of the Go SDK.")
+	selectVersions = selectz.Args(
 		"[version]",
 		"The version that should be selected.",
 	)
@@ -85,7 +87,7 @@ func main() {
 		handleInstall(*dryRun, *installAll, *installOS, *installArch, *installVersions)
 	case uninstall.Parsed():
 		handleUninstall(*dryRun, *uninstallAll, *uninstallVersions)
-	case select_.Parsed():
+	case selectz.Parsed():
 		handleSelect(*dryRun, *selectVersions)
 	case unselect.Parsed():
 		handleUnselect(*dryRun)

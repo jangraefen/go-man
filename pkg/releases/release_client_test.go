@@ -1,9 +1,10 @@
 package releases
 
 import (
+	"testing"
+
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSelectReleaseType(t *testing.T) {

@@ -1,13 +1,14 @@
 package releases
 
 import (
-	"github.com/hashicorp/go-version"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/go-version"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRelease_GetVersionNumber(t *testing.T) {
@@ -65,15 +66,15 @@ func TestRelease_FindFiles(t *testing.T) {
 	assert.Equal(t, expected, sut.FindFiles("xxx", "yyy", SourceFile)[0])
 }
 
-func TestReleaseFile_GetUrl(t *testing.T) {
+func TestReleaseFile_GetURL(t *testing.T) {
 	sut := &ReleaseFile{}
-	assert.Equal(t, "", sut.GetUrl())
+	assert.Equal(t, "", sut.GetURL())
 
 	sut.Filename = ""
-	assert.Equal(t, "", sut.GetUrl())
+	assert.Equal(t, "", sut.GetURL())
 
 	sut.Filename = "go1.15.2.windows-amd64.zip"
-	assert.Equal(t, "https://golang.org/dl/go1.15.2.windows-amd64.zip", sut.GetUrl())
+	assert.Equal(t, "https://golang.org/dl/go1.15.2.windows-amd64.zip", sut.GetURL())
 }
 
 func TestReleaseFile_Download(t *testing.T) {

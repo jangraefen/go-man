@@ -1,10 +1,11 @@
 package manager
 
 import (
-	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/hashicorp/go-version"
 )
 
 const (

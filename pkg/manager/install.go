@@ -1,13 +1,15 @@
 package manager
 
 import (
-	"github.com/NoizeMe/go-man/pkg/logging"
-	"github.com/NoizeMe/go-man/pkg/releases"
-	"github.com/hashicorp/go-version"
-	"github.com/mholt/archiver/v3"
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/hashicorp/go-version"
+	"github.com/mholt/archiver/v3"
+
+	"github.com/NoizeMe/go-man/pkg/logging"
+	"github.com/NoizeMe/go-man/pkg/releases"
 )
 
 // The Install function installs new instances of the Go SDK.
@@ -29,7 +31,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	destinationDirectory := filepath.Join(m.RootDirectory, file.Version)
 
 	if _, err := os.Stat(destinationFile); err != nil && os.IsNotExist(err) {
-		logging.TaskPrintf("Downloading: %s", file.GetUrl())
+		logging.TaskPrintf("Downloading: %s", file.GetURL())
 		if !m.DryRun {
 			logging.IfTaskError(file.Download(destinationFile, false))
 		}

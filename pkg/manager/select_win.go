@@ -3,9 +3,10 @@
 package manager
 
 import (
+	"os"
+
 	"github.com/otiai10/copy"
 	"golang.org/x/sys/windows"
-	"os"
 )
 
 func link(sourceDirectory, targetDirectory string) error {

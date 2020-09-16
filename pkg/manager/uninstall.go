@@ -2,10 +2,12 @@ package manager
 
 import (
 	"fmt"
-	"github.com/NoizeMe/go-man/pkg/logging"
-	"github.com/hashicorp/go-version"
 	"os"
 	"path/filepath"
+
+	"github.com/hashicorp/go-version"
+
+	"github.com/NoizeMe/go-man/pkg/logging"
 )
 
 // The UninstallAll function removes all current installations of the Go SDK.
