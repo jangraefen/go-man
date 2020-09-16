@@ -12,7 +12,9 @@ import (
 )
 
 func detectGoVersion(sdkDirectory string) (*version.Version, error) {
-	command := exec.Command(filepath.Join(sdkDirectory, "go", "bin", "go"), "version")
+	goBinaryPath := filepath.Join(sdkDirectory, "go", "bin", "go")
+
+	command := exec.Command(goBinaryPath, "version")
 	output, err := command.Output()
 	if err != nil {
 		return nil, err

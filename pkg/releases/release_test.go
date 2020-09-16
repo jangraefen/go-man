@@ -25,7 +25,6 @@ func TestRelease_GetVersionNumber(t *testing.T) {
 	sut.Version = "1.15.2"
 	assert.NotNil(t, sut.GetVersionNumber())
 	assert.Equal(t, version.Must(version.NewVersion("1.15.2")), sut.GetVersionNumber())
-
 }
 
 func TestRelease_FindFiles(t *testing.T) {
@@ -119,7 +118,7 @@ func TestReleaseFile_VerifySame(t *testing.T) {
 	}
 
 	assert.Nil(t, sut.Download(targetFile, false))
-	assert.Nil(t, ioutil.WriteFile(mockFile, []byte("NOT_THE_EXPECTED_CONTENT"), 0644))
+	assert.Nil(t, ioutil.WriteFile(mockFile, []byte("NOT_THE_EXPECTED_CONTENT"), 0600))
 
 	same, err := sut.VerifySame("I_DO_NOT_EXIST.txt")
 	assert.Error(t, err)
