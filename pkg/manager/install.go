@@ -19,30 +19,30 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	m.task.Printf("Installing %s %s-%s:", versionNumber, operatingSystem, arch)
 
 	release, releasePresent, err := releases.GetForVersion(releaseType, versionNumber)
-	m.task.IfTaskError(err)
-	m.task.IfTaskErrorf(!releasePresent, "release with versionName %s not present", versionNumber)
+	m.task.SubDieOnError(err)
+	m.task.SubDieIff(!releasePresent, "release with versionName %s not present", versionNumber)
 
 	files := release.FindFiles(operatingSystem, arch, releases.ArchiveFile)
-	m.task.IfTaskErrorf(len(files) != 1, "release %s with %s-%s not present", versionNumber, operatingSystem, arch)
+	m.task.SubDieIff(len(files) != 1, "release %s with %s-%s not present", versionNumber, operatingSystem, arch)
 
 	file := files[0]
 	destinationFile := filepath.Join(m.RootDirectory, file.Filename)
 	destinationDirectory := filepath.Join(m.RootDirectory, file.Version)
 
 	if _, err := os.Stat(destinationFile); err != nil && os.IsNotExist(err) {
-		m.task.TaskPrintf("Downloading: %s", file.GetURL())
+		m.task.SubPrintf("Downloading: %s", file.GetURL())
 		if !m.DryRun {
-			m.task.IfTaskError(file.Download(destinationFile, false))
+			m.task.SubDieOnError(file.Download(destinationFile, false))
 		}
 	} else {
-		m.task.TaskPrintf("Downloading: Skipping, since %s is already present", destinationFile)
+		m.task.SubPrintf("Downloading: Skipping, since %s is already present", destinationFile)
 	}
 
-	m.task.TaskPrintf("Verifying integrity: %s", file.Sha256)
+	m.task.SubPrintf("Verifying integrity: %s", file.Sha256)
 	if !m.DryRun {
 		same, err := file.VerifySame(destinationFile)
-		m.task.IfTaskError(err)
-		m.task.IfTaskErrorf(
+		m.task.SubDieOnError(err)
+		m.task.SubDieIff(
 			!same,
 			"Downloaded file %s could not be verified because the checksums did not match",
 			destinationFile,
@@ -50,19 +50,19 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	}
 
 	if _, err := os.Stat(destinationDirectory); err != nil && os.IsNotExist(err) {
-		m.task.TaskPrintf("Extracting: %s", file.Filename)
+		m.task.SubPrintf("Extracting: %s", file.Filename)
 		if !m.DryRun {
-			m.task.IfTaskError(archiver.Unarchive(destinationFile, destinationDirectory))
+			m.task.SubDieOnError(archiver.Unarchive(destinationFile, destinationDirectory))
 		}
 	} else {
-		m.task.TaskPrintf("Extracting: Skipping, since %s is already extracted", file.Version)
+		m.task.SubPrintf("Extracting: Skipping, since %s is already extracted", file.Version)
 	}
 
-	m.task.TaskPrintf("Verifying installation: %s", destinationDirectory)
+	m.task.SubPrintf("Verifying installation: %s", destinationDirectory)
 	if !m.DryRun {
 		detectedVersion, err := detectGoVersion(destinationDirectory)
-		m.task.IfTaskError(err)
-		m.task.IfTaskErrorf(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
+		m.task.SubDieOnError(err)
+		m.task.SubDieIff(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
 
 		m.InstalledVersions = append(m.InstalledVersions, versionNumber)
 		sort.Sort(m.InstalledVersions)

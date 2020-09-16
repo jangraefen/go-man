@@ -83,7 +83,7 @@ func main() {
 	_ = root.Parse()
 
 	if stat, err := os.Stat(gomanRoot()); err != nil && os.IsNotExist(err) || !stat.IsDir() {
-		task.IfError(os.MkdirAll(gomanRoot(), 0755))
+		task.DieOnError(os.MkdirAll(gomanRoot(), 0755))
 	}
 
 	switch {
@@ -106,7 +106,7 @@ func handleList(task *tasks.Task, all bool) {
 	task.Printf("List of available releases:")
 
 	releaseList, err := releases.ListAll(releases.SelectReleaseType(all))
-	task.IfTaskError(err)
+	task.SubDieOnError(err)
 
 	for _, r := range releaseList {
 		task.Printf("%s", r.GetVersionNumber())
@@ -114,11 +114,11 @@ func handleList(task *tasks.Task, all bool) {
 }
 
 func handleInstall(task *tasks.Task, dryRun, all bool, operatingSystem, arch string, versionNames []string) {
-	task.IfErrorf(len(versionNames) == 0, "No versions given to install, skipping")
+	task.DieIff(len(versionNames) == 0, "No versions given to install, skipping")
 
 	if len(versionNames) == 1 && versionNames[0] == "latest" {
 		latest, err := releases.GetLatest(releases.SelectReleaseType(all))
-		task.IfError(err)
+		task.DieOnError(err)
 
 		versionNames = []string{latest.GetVersionNumber().String()}
 	}
@@ -126,11 +126,11 @@ func handleInstall(task *tasks.Task, dryRun, all bool, operatingSystem, arch str
 	for _, versionName := range versionNames {
 		parsedVersion, err := version.NewVersion(versionName)
 		if err != nil {
-			task.IfError(err)
+			task.DieOnError(err)
 		}
 
 		goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
-		task.IfError(err)
+		task.DieOnError(err)
 		goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all))
 	}
 }
@@ -138,18 +138,18 @@ func handleInstall(task *tasks.Task, dryRun, all bool, operatingSystem, arch str
 func handleUninstall(task *tasks.Task, dryRun bool, all bool, versionNames []string) {
 	root := gomanRoot()
 
-	task.IfErrorf(!all && len(versionNames) == 0, "No versions to uninstall, skipping.")
-	task.IfErrorf(all && len(versionNames) > 0, "Both all flag and versions given, skipping.")
+	task.DieIff(!all && len(versionNames) == 0, "No versions to uninstall, skipping.")
+	task.DieIff(all && len(versionNames) > 0, "Both all flag and versions given, skipping.")
 
 	goManager, err := manager.NewManager(task, root, dryRun)
-	task.IfError(err)
+	task.DieOnError(err)
 
 	if all {
 		goManager.UninstallAll()
 	} else {
 		for _, versionName := range versionNames {
 			versionNumber, err := version.NewVersion(versionName)
-			task.IfError(err)
+			task.DieOnError(err)
 
 			goManager.Uninstall(versionNumber)
 		}
@@ -157,28 +157,28 @@ func handleUninstall(task *tasks.Task, dryRun bool, all bool, versionNames []str
 }
 
 func handleSelect(task *tasks.Task, dryRun bool, versionNames []string) {
-	task.IfErrorf(len(versionNames) == 0, "No version to select, skipping.")
-	task.IfErrorf(len(versionNames) > 1, "More then one version to select, skipping.")
+	task.DieIff(len(versionNames) == 0, "No version to select, skipping.")
+	task.DieIff(len(versionNames) > 1, "More then one version to select, skipping.")
 
 	parsedVersion, err := version.NewVersion(versionNames[0])
 	if err != nil {
-		task.IfError(err)
+		task.DieOnError(err)
 	}
 
 	goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
-	task.IfError(err)
+	task.DieOnError(err)
 	goManager.Select(parsedVersion)
 }
 
 func handleUnselect(task *tasks.Task, dryRun bool) {
 	goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
-	task.IfError(err)
+	task.DieOnError(err)
 	goManager.Unselect()
 }
 
 func handleCleanup(task *tasks.Task, dryRun bool) {
 	goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
-	task.IfError(err)
+	task.DieOnError(err)
 	goManager.Cleanup()
 }
 
