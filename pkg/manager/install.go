@@ -17,32 +17,33 @@ import (
 // directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arch string, releaseType releases.ReleaseType) {
 	m.task.Printf("Installing %s %s-%s:", versionNumber, operatingSystem, arch)
+	installTask := m.task.Step()
 
 	release, releasePresent, err := releases.GetForVersion(releaseType, versionNumber)
-	m.task.Step().DieOnError(err)
-	m.task.Step().DieIff(!releasePresent, "release with versionName %s not present", versionNumber)
+	installTask.DieOnError(err)
+	installTask.DieIff(!releasePresent, "release with versionName %s not present", versionNumber)
 
 	files := release.FindFiles(operatingSystem, arch, releases.ArchiveFile)
-	m.task.Step().DieIff(len(files) != 1, "release %s with %s-%s not present", versionNumber, operatingSystem, arch)
+	installTask.DieIff(len(files) != 1, "release %s with %s-%s not present", versionNumber, operatingSystem, arch)
 
 	file := files[0]
 	destinationFile := filepath.Join(m.RootDirectory, file.Filename)
 	destinationDirectory := filepath.Join(m.RootDirectory, file.Version)
 
 	if _, err := os.Stat(destinationFile); err != nil && os.IsNotExist(err) {
-		m.task.Step().Printf("Downloading: %s", file.GetURL())
+		installTask.Printf("Downloading: %s", file.GetURL())
 		if !m.DryRun {
-			m.task.Step().DieOnError(file.Download(destinationFile, false))
+			installTask.DieOnError(file.Download(destinationFile, false))
 		}
 	} else {
-		m.task.Step().Printf("Downloading: Skipping, since %s is already present", destinationFile)
+		installTask.Printf("Downloading: Skipping, since %s is already present", destinationFile)
 	}
 
-	m.task.Step().Printf("Verifying integrity: %s", file.Sha256)
+	installTask.Printf("Verifying integrity: %s", file.Sha256)
 	if !m.DryRun {
 		same, err := file.VerifySame(destinationFile)
-		m.task.Step().DieOnError(err)
-		m.task.Step().DieIff(
+		installTask.DieOnError(err)
+		installTask.DieIff(
 			!same,
 			"Downloaded file %s could not be verified because the checksums did not match",
 			destinationFile,
@@ -50,19 +51,19 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	}
 
 	if _, err := os.Stat(destinationDirectory); err != nil && os.IsNotExist(err) {
-		m.task.Step().Printf("Extracting: %s", file.Filename)
+		installTask.Printf("Extracting: %s", file.Filename)
 		if !m.DryRun {
-			m.task.Step().DieOnError(archiver.Unarchive(destinationFile, destinationDirectory))
+			installTask.DieOnError(archiver.Unarchive(destinationFile, destinationDirectory))
 		}
 	} else {
-		m.task.Step().Printf("Extracting: Skipping, since %s is already extracted", file.Version)
+		installTask.Printf("Extracting: Skipping, since %s is already extracted", file.Version)
 	}
 
-	m.task.Step().Printf("Verifying installation: %s", destinationDirectory)
+	installTask.Printf("Verifying installation: %s", destinationDirectory)
 	if !m.DryRun {
 		detectedVersion, err := detectGoVersion(destinationDirectory)
-		m.task.Step().DieOnError(err)
-		m.task.Step().DieIff(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
+		installTask.DieOnError(err)
+		installTask.DieIff(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
 
 		m.InstalledVersions = append(m.InstalledVersions, versionNumber)
 		sort.Sort(m.InstalledVersions)

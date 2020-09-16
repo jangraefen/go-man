@@ -104,12 +104,13 @@ func main() {
 
 func handleList(task *tasks.Task, all bool) {
 	task.Printf("List of available releases:")
+	listTask := task.Step()
 
 	releaseList, err := releases.ListAll(releases.SelectReleaseType(all))
-	task.Step().DieOnError(err)
+	listTask.DieOnError(err)
 
 	for _, r := range releaseList {
-		task.Step().Printf("%s", r.GetVersionNumber())
+		listTask.Printf("%s", r.GetVersionNumber())
 	}
 }
 

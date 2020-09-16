@@ -10,14 +10,15 @@ import (
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m GoManager) Cleanup() {
 	m.task.Printf("Scanning for non-stable versions")
-	var versionsToRemove version.Collection
+	cleanupTask := m.task.Step()
 
+	var versionsToRemove version.Collection
 	for _, installedVersion := range m.InstalledVersions {
 		_, exists, err := releases.GetForVersion(releases.IncludeStable, installedVersion)
-		m.task.Step().DieOnError(err)
+		cleanupTask.DieOnError(err)
 
 		if !exists {
-			m.task.Step().Printf("Marked %s for removal", installedVersion)
+			cleanupTask.Printf("Marked %s for removal", installedVersion)
 			versionsToRemove = append(versionsToRemove, installedVersion)
 		}
 	}

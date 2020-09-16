@@ -11,6 +11,7 @@ import (
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Select(versionNumber *version.Version) {
 	m.task.Printf("Selecting version as active: %s", versionNumber)
+	selectTask := m.task.Step()
 
 	if !m.DryRun && m.SelectedVersion != nil {
 		m.Unselect()
@@ -19,10 +20,10 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
-	m.task.Step().Printf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
+	selectTask.Printf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
 	if !m.DryRun {
 		err := link(versionDirectory, selectedDirectory)
-		m.task.Step().DieOnError(err)
+		selectTask.DieOnError(err)
 
 		m.SelectedVersion = versionNumber
 	}
@@ -32,7 +33,9 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Unselect() {
 	m.task.Printf("Unselect current selected version")
-	m.task.Step().DieIff(m.SelectedVersion == nil, "could not unselect because no version is selected")
+	unselectTask := m.task.Step()
+
+	unselectTask.DieIff(m.SelectedVersion == nil, "could not unselect because no version is selected")
 
 	if m.DryRun {
 		return
@@ -40,9 +43,9 @@ func (m *GoManager) Unselect() {
 
 	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
-	m.task.Step().Printf("Unlinking directory: %s", selectedDirectory)
+	unselectTask.Printf("Unlinking directory: %s", selectedDirectory)
 	err := unlink(selectedDirectory)
-	m.task.Step().DieOnError(err)
+	unselectTask.DieOnError(err)
 
 	m.SelectedVersion = nil
 }
