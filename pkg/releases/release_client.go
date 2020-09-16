@@ -15,9 +15,9 @@ type ReleaseType string
 const (
 	releaseListURLTemplate = "https://golang.org/dl/?mode=json&include=%s"
 
-	// The IncludeAll release type will include each and every release of Go that was ever distributed publicly.
+	// IncludeAll is the release type that will include each and every release of Go that was ever distributed publicly.
 	IncludeAll = ReleaseType("all")
-	// The IncludeStable release type will include each release that is currently considered stable.
+	// IncludeStable is the release type that will include each release that is currently considered stable.
 	IncludeStable = ReleaseType("stable")
 )
 
@@ -25,7 +25,7 @@ var (
 	emptyRelease = &Release{}
 )
 
-//  SelectReleaseType is a function that returns the release type that matches the input parameters best.
+// SelectReleaseType is a function that returns the release type that matches the input parameters best.
 // For convenience can be used to get the correct release type by describing what kind of releases are desired and the
 // correct release type is then selected by this function. By default IncludeStable is returned.
 func SelectReleaseType(all bool) ReleaseType {

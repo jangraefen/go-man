@@ -40,7 +40,7 @@ func IfError(err error) {
 	IfErrorf(err != nil, "%s", err)
 }
 
-// Errorf is a function that logs any string to system err and causes the application to exit, if a condition matches.
+// IfErrorf is a function that logs any string to system err and causes the application to exit, if a condition matches.
 // It provides the same formatting as the fmt package does.
 func IfErrorf(condition bool, format string, args ...interface{}) {
 	if condition {
@@ -48,12 +48,12 @@ func IfErrorf(condition bool, format string, args ...interface{}) {
 	}
 }
 
-// IfError is a function that logs any error to system err, but indenting it, and causes the application to exit, if a condition matches.
+// IfTaskError is a function that logs any error to system err, but indenting it, and causes the application to exit, if a condition matches.
 func IfTaskError(err error) {
 	IfTaskErrorf(err != nil, "%s", err)
 }
 
-// TaskErrorf is a function that logs any string to system err, but indenting it, and causes the application to exit, if a matches.
+// IfTaskErrorf is a function that logs any string to system err, but indenting it, and causes the application to exit, if a matches.
 // It provides the same formatting as the fmt package does.
 func IfTaskErrorf(condition bool, format string, args ...interface{}) {
 	if condition {
