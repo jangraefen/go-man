@@ -84,9 +84,9 @@ jobs:
       - name: build
         run: |
           export GO111MODULE=on
-          GOOS=darwin  GOARCH=amd64 go build cmd/main -o bin/goman-ci-darwin-amd64
-          GOOS=linux   GOARCH=amd64 go build cmd/main -o bin/goman-ci-linux-amd64
-          GOOS=windows GOARCH=amd64 go build cmd/main -o bin/goman-ci-windows-amd64.exe
+          GOOS=darwin  GOARCH=amd64 go build -o bin/goman-ci-darwin-amd64      cmd/main.go
+          GOOS=linux   GOARCH=amd64 go build -o bin/goman-ci-linux-amd64       cmd/main.go
+          GOOS=windows GOARCH=amd64 go build -o bin/goman-ci-windows-amd64.exe cmd/main.go
       - name: upload artifacts
         uses: actions/upload-artifact@master
         with:
