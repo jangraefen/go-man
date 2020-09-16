@@ -3,6 +3,11 @@ name: Build
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - .gitignore
+      - .editorconfig
   pull_request:
     branches: [ master ]
 
