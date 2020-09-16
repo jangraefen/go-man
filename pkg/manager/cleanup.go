@@ -14,10 +14,10 @@ func (m GoManager) Cleanup() {
 
 	for _, installedVersion := range m.InstalledVersions {
 		_, exists, err := releases.GetForVersion(releases.IncludeStable, installedVersion)
-		m.task.SubDieOnError(err)
+		m.task.Step().DieOnError(err)
 
 		if !exists {
-			m.task.SubPrintf("Marked %s for removal", installedVersion)
+			m.task.Step().Printf("Marked %s for removal", installedVersion)
 			versionsToRemove = append(versionsToRemove, installedVersion)
 		}
 	}

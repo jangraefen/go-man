@@ -30,18 +30,18 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) {
 
 	m.task.Printf("Removing %s", versionNumber)
 
-	m.task.SubPrintf("Deleting SDK: %s", versionDirectory)
+	m.task.Step().Printf("Deleting SDK: %s", versionDirectory)
 	if !m.DryRun {
-		m.task.SubDieOnError(os.RemoveAll(versionDirectory))
+		m.task.Step().DieOnError(os.RemoveAll(versionDirectory))
 	}
 
 	matches, err := filepath.Glob(versionArchive)
-	m.task.SubDieOnError(err)
+	m.task.Step().DieOnError(err)
 
 	for _, match := range matches {
-		m.task.SubPrintf("Deleting SDK archive: %s", match)
+		m.task.Step().Printf("Deleting SDK archive: %s", match)
 		if !m.DryRun {
-			m.task.SubDieOnError(os.Remove(match))
+			m.task.Step().DieOnError(os.Remove(match))
 		}
 	}
 
