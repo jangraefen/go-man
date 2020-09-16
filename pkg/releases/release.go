@@ -18,15 +18,15 @@ type FileKind string
 const (
 	fileURLTemplate = "https://golang.org/dl/%s"
 
-	// The SourceFile file kind describes source archives of the Golang SDK release.
+	// SourceFile describes the file kind source archives of the Golang SDK release.
 	SourceFile = FileKind("source")
-	// The ArchiveFile file kind describes binary distribution archives of the Golang SDK release.
+	// ArchiveFile describes the file kind binary distribution archives of the Golang SDK release.
 	ArchiveFile = FileKind("archive")
-	// The InstallerFile file kind describes installer executable of the Golang SDK release.
+	// InstallerFile describes the file kind installer executable of the Golang SDK release.
 	InstallerFile = FileKind("installer")
 )
 
-// The Release struct holds all relevant information about a released Go version.
+// Release is a struct that holds all the relevant information about a released Go version.
 // The official golang website offers a JSON-based endpoint that serves a list of all Golang releases that are structured
 // just like this struct, so it can be used to read that endpoint.
 type Release struct {
@@ -39,7 +39,7 @@ type Release struct {
 	Files []ReleaseFile `json:"files"`
 }
 
-// The GetVersionNumber function returns the version number for a Golang release.
+// GetVersionNumber is a getter that returns the version number for a Golang release.
 // Since the Version field of a release is prefixed by the string "go", this method returns a substring of this fields that
 // is stripped of that exact prefix, to allow easier processing.
 func (r Release) GetVersionNumber() *version.Version {
@@ -50,7 +50,7 @@ func (r Release) GetVersionNumber() *version.Version {
 	return version.Must(version.NewVersion(strings.TrimPrefix(r.Version, "go")))
 }
 
-// The FindFiles function returns a sub-slice of all files that match the given operating system and architecture.
+// FindFiles is a helper that returns a sub-slice of all files that match the given operating system and architecture.
 // If a file is not specific for an operating system or architecture, it will also be included.
 func (r Release) FindFiles(os, arch string, kind FileKind) []ReleaseFile {
 	var filteredFiles []ReleaseFile
@@ -64,7 +64,7 @@ func (r Release) FindFiles(os, arch string, kind FileKind) []ReleaseFile {
 	return filteredFiles
 }
 
-// The ReleaseFile struct holds all information about a file that is part of a released Go version.
+// ReleaseFile is a that struct holds all information about a file that is part of a released Go version.
 // With each release, a couple of files are distributed, like an installer, a source archive or a binary distribution for
 // different operating systems and architectures. This struct holds information exactly about these files, as part of a
 // Release struct that is obtained by querying the endpoint by the official Golang website.
@@ -85,7 +85,7 @@ type ReleaseFile struct {
 	Kind FileKind `json:"kind"`
 }
 
-// The GetURL function returns the URL where the file can be downloaded from.
+// GetURL is a getter that returns the URL where the receiving file can be downloaded from.
 func (f ReleaseFile) GetURL() string {
 	if len(f.Filename) == 0 {
 		return ""
@@ -94,7 +94,7 @@ func (f ReleaseFile) GetURL() string {
 	return fmt.Sprintf(fileURLTemplate, f.Filename)
 }
 
-// The Download function loads the receiving release file to the given destination file.
+// Download is a function that downloads the receiving release file to the given destination file.
 // If the destination file already exists it is overwritten, except if the skipIfPresent flag is set to true. In this case
 // nothing will be downloaded.
 func (f ReleaseFile) Download(destinationFile string, skipIfPresent bool) error {
@@ -139,7 +139,7 @@ func (f ReleaseFile) Download(destinationFile string, skipIfPresent bool) error 
 	return nil
 }
 
-// The VerifySame function checks if a given file has the correct checksum.
+// VerifySame is a function that checks if a given file has the correct checksum.
 // It first builds the sha256 of the given file and then compares that value against the Sha256 attribute.
 func (f ReleaseFile) VerifySame(fileName string) (bool, error) {
 	file, err := os.Open(fileName)

@@ -28,6 +28,9 @@ type GoManager struct {
 	SelectedVersion *version.Version
 }
 
+// NewManager is a constructor for the GoManager struct.
+// It reads through the given root directory and detects the current state and initializes the GoManager instance
+// accordingly. The dryRun parameter can be used to make the returned instance 'ready-only'.
 func NewManager(rootDirectory string, dryRun bool) (*GoManager, error) {
 	var selectedVersion *version.Version
 	var installedVersions version.Collection

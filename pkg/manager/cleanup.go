@@ -7,7 +7,7 @@ import (
 	"github.com/NoizeMe/go-man/pkg/releases"
 )
 
-// The Cleanup function removes all Go SDK installations that are currently not considered stable.
+// Cleanup is a function that removes all Go SDK installations that are currently not considered stable.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m GoManager) Cleanup() {
 	logging.Printf("Scanning for non-stable versions")

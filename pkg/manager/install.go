@@ -12,7 +12,7 @@ import (
 	"github.com/NoizeMe/go-man/pkg/releases"
 )
 
-// The Install function installs new instances of the Go SDK.
+// Install is a function that installs new instances of the Go SDK.
 // As installation parameters the version number, operating system and platform architecture are considered when choosing the
 // correct installation artifacts. The releaseType parameter is used to limit the amount of accepted versions. Feedback is
 // directly printed to the stdout or stderr, so nothing is returned here.

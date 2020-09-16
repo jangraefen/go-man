@@ -25,7 +25,7 @@ var (
 	emptyRelease = &Release{}
 )
 
-// The SelectReleaseType function returns the release type that matches the input parameters best.
+//  SelectReleaseType is a function that returns the release type that matches the input parameters best.
 // For convenience can be used to get the correct release type by describing what kind of releases are desired and the
 // correct release type is then selected by this function. By default IncludeStable is returned.
 func SelectReleaseType(all bool) ReleaseType {
@@ -36,7 +36,7 @@ func SelectReleaseType(all bool) ReleaseType {
 	return IncludeStable
 }
 
-// The ListAll function retrieves a list of all Golang releases from the official website.
+// ListAll is a function that retrieves a list of all Golang releases from the official website.
 // This list is retrieved by querying a JSON endpoint that is provided by the official Golang website. If the endpoint
 // responds with any other status code than 200, an error is returned.
 func ListAll(releaseType ReleaseType) (Collection, error) {
@@ -61,7 +61,7 @@ func ListAll(releaseType ReleaseType) (Collection, error) {
 	return versions, nil
 }
 
-// The GetLatest function retrieves the latest release of the Golang SDK.
+// GetLatest is a function that retrieves the latest release of the Golang SDK.
 func GetLatest(releaseType ReleaseType) (*Release, error) {
 	releases, err := ListAll(releaseType)
 	if err != nil {
@@ -72,7 +72,7 @@ func GetLatest(releaseType ReleaseType) (*Release, error) {
 	return releases[releases.Len()-1], nil
 }
 
-// The GetForVersion function returns the Golang release with a given version, if such a release exists.
+// GetForVersion is a function that returns the Golang release with a given version, if such a release exists.
 // A list of releases is retrieved, honoring the given release type as a filter, and then scanned for a release that has the
 // same version number as the version variable. If no such release can be found, an empty release object is returned and the
 // boolean return value will be set to false.

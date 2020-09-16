@@ -1,2 +1,2 @@
-// The logging package contains helper methods for logging to the console.
+// Package logging contains helper methods for logging to the console.
 package logging

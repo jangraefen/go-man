@@ -9,7 +9,7 @@ import (
 	"github.com/NoizeMe/go-man/pkg/logging"
 )
 
-// The Select function selects an existing installation of the Go SDK as the active one.
+// Select is a function that selects an existing installation of the Go SDK as the active one.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Select(versionNumber *version.Version) {
 	logging.Printf("Selecting version as active: %s", versionNumber)
@@ -30,7 +30,7 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 	}
 }
 
-// The Unselect function unselects an existing installation of the Go SDK as the active one.
+// Unselect is a function that unselects an existing installation of the Go SDK as the active one.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Unselect() {
 	logging.Printf("Unselect current selected version")

@@ -10,7 +10,7 @@ import (
 	"github.com/NoizeMe/go-man/pkg/logging"
 )
 
-// The UninstallAll function removes all current installations of the Go SDK.
+// UninstallAll is a function that removes all current installations of the Go SDK.
 func (m *GoManager) UninstallAll() {
 	installedVersions := make(version.Collection, len(m.InstalledVersions))
 	copy(installedVersions, m.InstalledVersions)
@@ -20,7 +20,7 @@ func (m *GoManager) UninstallAll() {
 	}
 }
 
-// The Uninstall function removes an existing installation of the Go SDK.
+// Uninstall is a function that removes an existing installation of the Go SDK.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Uninstall(versionNumber *version.Version) {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
