@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/go-version"
+
+	"github.com/NoizeMe/go-man/pkg/tasks"
 )
 
 const (
@@ -26,12 +28,14 @@ type GoManager struct {
 	// The currently selected version. The selected version is the release that is synced to the "selected" directory. Might
 	// be nil, if no version is currently selected.
 	SelectedVersion *version.Version
+
+	task *tasks.Task
 }
 
 // NewManager is a constructor for the GoManager struct.
 // It reads through the given root directory and detects the current state and initializes the GoManager instance
 // accordingly. The dryRun parameter can be used to make the returned instance 'ready-only'.
-func NewManager(rootDirectory string, dryRun bool) (*GoManager, error) {
+func NewManager(task *tasks.Task, rootDirectory string, dryRun bool) (*GoManager, error) {
 	var selectedVersion *version.Version
 	var installedVersions version.Collection
 
@@ -60,5 +64,6 @@ func NewManager(rootDirectory string, dryRun bool) (*GoManager, error) {
 		DryRun:            dryRun,
 		InstalledVersions: installedVersions,
 		SelectedVersion:   selectedVersion,
+		task:              task,
 	}, nil
 }

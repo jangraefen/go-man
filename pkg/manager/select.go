@@ -5,14 +5,12 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/go-version"
-
-	"github.com/NoizeMe/go-man/pkg/logging"
 )
 
 // Select is a function that selects an existing installation of the Go SDK as the active one.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Select(versionNumber *version.Version) {
-	logging.Printf("Selecting version as active: %s", versionNumber)
+	m.task.Printf("Selecting version as active: %s", versionNumber)
 
 	if !m.DryRun && m.SelectedVersion != nil {
 		m.Unselect()
@@ -21,10 +19,10 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
-	logging.TaskPrintf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
+	m.task.TaskPrintf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
 	if !m.DryRun {
 		err := link(versionDirectory, selectedDirectory)
-		logging.IfTaskError(err)
+		m.task.IfTaskError(err)
 
 		m.SelectedVersion = versionNumber
 	}
@@ -33,8 +31,8 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 // Unselect is a function that unselects an existing installation of the Go SDK as the active one.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Unselect() {
-	logging.Printf("Unselect current selected version")
-	logging.IfTaskErrorf(m.SelectedVersion == nil, "could not unselect because no version is selected")
+	m.task.Printf("Unselect current selected version")
+	m.task.IfTaskErrorf(m.SelectedVersion == nil, "could not unselect because no version is selected")
 
 	if m.DryRun {
 		return
@@ -42,9 +40,9 @@ func (m *GoManager) Unselect() {
 
 	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
-	logging.TaskPrintf("Unlinking directory: %s", selectedDirectory)
+	m.task.TaskPrintf("Unlinking directory: %s", selectedDirectory)
 	err := unlink(selectedDirectory)
-	logging.IfTaskError(err)
+	m.task.IfTaskError(err)
 
 	m.SelectedVersion = nil
 }

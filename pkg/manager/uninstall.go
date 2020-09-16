@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/go-version"
-
-	"github.com/NoizeMe/go-man/pkg/logging"
 )
 
 // UninstallAll is a function that removes all current installations of the Go SDK.
@@ -30,20 +28,20 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) {
 		m.Unselect()
 	}
 
-	logging.Printf("Removing %s", versionNumber)
+	m.task.Printf("Removing %s", versionNumber)
 
-	logging.TaskPrintf("Deleting SDK: %s", versionDirectory)
+	m.task.TaskPrintf("Deleting SDK: %s", versionDirectory)
 	if !m.DryRun {
-		logging.IfTaskError(os.RemoveAll(versionDirectory))
+		m.task.IfTaskError(os.RemoveAll(versionDirectory))
 	}
 
 	matches, err := filepath.Glob(versionArchive)
-	logging.IfTaskError(err)
+	m.task.IfTaskError(err)
 
 	for _, match := range matches {
-		logging.TaskPrintf("Deleting SDK archive: %s", match)
+		m.task.TaskPrintf("Deleting SDK archive: %s", match)
 		if !m.DryRun {
-			logging.IfTaskError(os.Remove(match))
+			m.task.IfTaskError(os.Remove(match))
 		}
 	}
 
