@@ -32,7 +32,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 
 	if _, err := os.Stat(destinationFile); err != nil && os.IsNotExist(err) {
 		installTask.Printf("Downloading: %s", file.GetURL())
-			installTask.DieOnError(file.Download(destinationFile, false))
+		installTask.DieOnError(file.Download(destinationFile, false))
 	} else {
 		installTask.Printf("Downloading: Skipping, since %s is already present", destinationFile)
 	}
@@ -49,7 +49,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 
 	if _, err := os.Stat(destinationDirectory); err != nil && os.IsNotExist(err) {
 		installTask.Printf("Extracting: %s", file.Filename)
-			installTask.DieOnError(archiver.Unarchive(destinationFile, destinationDirectory))
+		installTask.DieOnError(archiver.Unarchive(destinationFile, destinationDirectory))
 	} else {
 		installTask.Printf("Extracting: Skipping, since %s is already extracted", file.Version)
 	}
