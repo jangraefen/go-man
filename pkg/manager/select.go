@@ -14,7 +14,7 @@ import (
 func (m *GoManager) Select(versionNumber *version.Version) {
 	logging.Printf("Selecting version as active: %s", versionNumber)
 
-	if !m.DryRun && m.SelectedVersion != nil {
+	if m.SelectedVersion != nil {
 		m.Unselect()
 	}
 
@@ -22,12 +22,11 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
 	logging.TaskPrintf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
-	if !m.DryRun {
-		err := link(versionDirectory, selectedDirectory)
-		logging.IfTaskError(err)
 
-		m.SelectedVersion = versionNumber
-	}
+	err := link(versionDirectory, selectedDirectory)
+	logging.IfTaskError(err)
+
+	m.SelectedVersion = versionNumber
 }
 
 // Unselect is a function that unselects an existing installation of the Go SDK as the active one.
@@ -35,10 +34,6 @@ func (m *GoManager) Select(versionNumber *version.Version) {
 func (m *GoManager) Unselect() {
 	logging.Printf("Unselect current selected version")
 	logging.IfTaskErrorf(m.SelectedVersion == nil, "could not unselect because no version is selected")
-
-	if m.DryRun {
-		return
-	}
 
 	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
