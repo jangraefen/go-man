@@ -46,7 +46,6 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) {
 		if installedVersion.Equal(versionNumber) {
 			m.InstalledVersions = append(m.InstalledVersions[:index], m.InstalledVersions[index+1:]...)
 			break
-
 		}
 	}
 }
