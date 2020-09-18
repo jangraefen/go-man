@@ -14,12 +14,7 @@ import (
 )
 
 var (
-	root   = cmd.New()
-	dryRun = root.Bool(
-		"dryrun",
-		false,
-		"By passing this flag, all actions are done as if they were successful, but no changes will be performed.",
-	)
+	root = cmd.New()
 
 	list    = root.SubCommand("list", "Lists all available releases of the Go SDK.")
 	listAll = list.Bool(
@@ -84,15 +79,15 @@ func main() {
 	case list.Parsed():
 		handleList(*listAll)
 	case install.Parsed():
-		handleInstall(*dryRun, *installAll, *installOS, *installArch, *installVersions)
+		handleInstall(*installAll, *installOS, *installArch, *installVersions)
 	case uninstall.Parsed():
-		handleUninstall(*dryRun, *uninstallAll, *uninstallVersions)
+		handleUninstall(*uninstallAll, *uninstallVersions)
 	case selectz.Parsed():
-		handleSelect(*dryRun, *selectVersions)
+		handleSelect(*selectVersions)
 	case unselect.Parsed():
-		handleUnselect(*dryRun)
+		handleUnselect()
 	case cleanup.Parsed():
-		handleCleanup(*dryRun)
+		handleCleanup()
 	}
 }
 
@@ -107,7 +102,7 @@ func handleList(all bool) {
 	}
 }
 
-func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames []string) {
+func handleInstall(all bool, operatingSystem, arch string, versionNames []string) {
 	logging.IfErrorf(len(versionNames) == 0, "No versions given to install, skipping")
 
 	if len(versionNames) == 1 && versionNames[0] == "latest" {
@@ -123,19 +118,19 @@ func handleInstall(dryRun, all bool, operatingSystem, arch string, versionNames 
 			logging.IfError(err)
 		}
 
-		goManager, err := manager.NewManager(gomanRoot(), dryRun)
+		goManager, err := manager.NewManager(gomanRoot())
 		logging.IfError(err)
 		goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all))
 	}
 }
 
-func handleUninstall(dryRun bool, all bool, versionNames []string) {
+func handleUninstall(all bool, versionNames []string) {
 	root := gomanRoot()
 
 	logging.IfErrorf(!all && len(versionNames) == 0, "No versions to uninstall, skipping.")
 	logging.IfErrorf(all && len(versionNames) > 0, "Both all flag and versions given, skipping.")
 
-	goManager, err := manager.NewManager(root, dryRun)
+	goManager, err := manager.NewManager(root)
 	logging.IfError(err)
 
 	if all {
@@ -150,7 +145,7 @@ func handleUninstall(dryRun bool, all bool, versionNames []string) {
 	}
 }
 
-func handleSelect(dryRun bool, versionNames []string) {
+func handleSelect(versionNames []string) {
 	logging.IfErrorf(len(versionNames) == 0, "No version to select, skipping.")
 	logging.IfErrorf(len(versionNames) > 1, "More then one version to select, skipping.")
 
@@ -159,19 +154,19 @@ func handleSelect(dryRun bool, versionNames []string) {
 		logging.IfError(err)
 	}
 
-	goManager, err := manager.NewManager(gomanRoot(), dryRun)
+	goManager, err := manager.NewManager(gomanRoot())
 	logging.IfError(err)
 	goManager.Select(parsedVersion)
 }
 
-func handleUnselect(dryRun bool) {
-	goManager, err := manager.NewManager(gomanRoot(), dryRun)
+func handleUnselect() {
+	goManager, err := manager.NewManager(gomanRoot())
 	logging.IfError(err)
 	goManager.Unselect()
 }
 
-func handleCleanup(dryRun bool) {
-	goManager, err := manager.NewManager(gomanRoot(), dryRun)
+func handleCleanup() {
+	goManager, err := manager.NewManager(gomanRoot())
 	logging.IfError(err)
 	goManager.Cleanup()
 }

@@ -26,34 +26,28 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	versionArchive := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s*", versionNumber))
 
-	if !m.DryRun && versionNumber.Equal(m.SelectedVersion) {
+	if versionNumber.Equal(m.SelectedVersion) {
 		m.Unselect()
 	}
 
 	logging.Printf("Removing %s", versionNumber)
 
 	logging.TaskPrintf("Deleting SDK: %s", versionDirectory)
-	if !m.DryRun {
-		logging.IfTaskError(os.RemoveAll(versionDirectory))
-	}
+	logging.IfTaskError(os.RemoveAll(versionDirectory))
 
 	matches, err := filepath.Glob(versionArchive)
 	logging.IfTaskError(err)
 
 	for _, match := range matches {
 		logging.TaskPrintf("Deleting SDK archive: %s", match)
-		if !m.DryRun {
-			logging.IfTaskError(os.Remove(match))
-		}
+		logging.IfTaskError(os.Remove(match))
 	}
 
-	if !m.DryRun {
-		for index, installedVersion := range m.InstalledVersions {
-			if installedVersion.Equal(versionNumber) {
-				m.InstalledVersions = append(m.InstalledVersions[:index], m.InstalledVersions[index+1:]...)
+	for index, installedVersion := range m.InstalledVersions {
+		if installedVersion.Equal(versionNumber) {
+			m.InstalledVersions = append(m.InstalledVersions[:index], m.InstalledVersions[index+1:]...)
 
-				break
-			}
+			break
 		}
 	}
 }
