@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -9,6 +10,7 @@ import (
 	"github.com/mholt/archiver/v3"
 
 	"github.com/NoizeMe/go-man/pkg/releases"
+	"github.com/NoizeMe/go-man/pkg/tasks"
 )
 
 // Install is a function that installs new instances of the Go SDK.
@@ -30,36 +32,59 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	destinationFile := filepath.Join(m.RootDirectory, file.Filename)
 	destinationDirectory := filepath.Join(m.RootDirectory, file.Version)
 
-	if _, err := os.Stat(destinationFile); err != nil && os.IsNotExist(err) {
-		installTask.Printf("Downloading: %s", file.GetURL())
-		installTask.DieOnError(file.Download(destinationFile, false))
-	} else {
-		installTask.Printf("Downloading: Skipping, since %s is already present", destinationFile)
-	}
-
-	installTask.Printf("Verifying integrity: %s", file.Sha256)
-
-	same, err := file.VerifySame(destinationFile)
-	installTask.DieOnError(err)
-	installTask.DieIff(
-		!same,
-		"Downloaded file %s could not be verified because the checksums did not match",
-		destinationFile,
-	)
-
-	if _, err := os.Stat(destinationDirectory); err != nil && os.IsNotExist(err) {
-		installTask.Printf("Extracting: %s", file.Filename)
-		installTask.DieOnError(archiver.Unarchive(destinationFile, destinationDirectory))
-	} else {
-		installTask.Printf("Extracting: Skipping, since %s is already extracted", file.Version)
-	}
-
-	installTask.Printf("Verifying installation: %s", destinationDirectory)
-
-	detectedVersion, err := detectGoVersion(filepath.Join(destinationDirectory, "go"))
-	installTask.DieOnError(err)
-	installTask.DieIff(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
+	installTask.DieOnError(downloadRelease(installTask, file, destinationFile))
+	installTask.DieOnError(verifyDownload(installTask, file, destinationFile))
+	installTask.DieOnError(extractRelease(installTask, file, destinationFile, destinationDirectory))
+	installTask.DieOnError(verifyRelease(installTask, versionNumber, destinationDirectory))
 
 	m.InstalledVersions = append(m.InstalledVersions, versionNumber)
 	sort.Sort(m.InstalledVersions)
+}
+
+func downloadRelease(installTask *tasks.Task, file releases.ReleaseFile, destinationFile string) error {
+	if _, err := os.Stat(destinationFile); err == nil || !os.IsNotExist(err) {
+		installTask.Printf("Downloading: Skipping, since %s is already present", destinationFile)
+		return nil
+	}
+
+	installTask.Printf("Downloading: %s", file.GetURL())
+	return file.Download(destinationFile, false)
+}
+
+func verifyDownload(installTask *tasks.Task, file releases.ReleaseFile, destinationFile string) error {
+	installTask.Printf("Verifying integrity: %s", file.Sha256)
+
+	same, err := file.VerifySame(destinationFile)
+	if err != nil {
+		return err
+	}
+	if !same {
+		return fmt.Errorf("downloaded file %s could not be verified because the checksums did not match", destinationFile)
+	}
+
+	return nil
+}
+
+func extractRelease(installTask *tasks.Task, file releases.ReleaseFile, destinationFile string, destinationDirectory string) error {
+	if _, err := os.Stat(destinationDirectory); err == nil || !os.IsNotExist(err) {
+		installTask.Printf("Extracting: Skipping, since %s is already extracted", file.Version)
+		return nil
+	}
+
+	installTask.Printf("Extracting: %s", file.Filename)
+	return archiver.Unarchive(destinationFile, destinationDirectory)
+}
+
+func verifyRelease(installTask *tasks.Task, versionNumber *version.Version, destinationDirectory string) error {
+	installTask.Printf("Verifying installation: %s", destinationDirectory)
+
+	detectedVersion, err := detectGoVersion(filepath.Join(destinationDirectory, "go"))
+	if err != nil {
+		return err
+	}
+	if !detectedVersion.Equal(versionNumber) {
+		return fmt.Errorf("could not verify installation: %s", detectedVersion)
+	}
+
+	return nil
 }
