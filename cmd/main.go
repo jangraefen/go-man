@@ -14,12 +14,7 @@ import (
 )
 
 var (
-	root   = cmd.New()
-	dryRun = root.Bool(
-		"dryrun",
-		false,
-		"By passing this flag, all actions are done as if they were successful, but no changes will be performed.",
-	)
+	root = cmd.New()
 
 	list    = root.SubCommand("list", "Lists all available releases of the Go SDK.")
 	listAll = list.Bool(
@@ -90,15 +85,15 @@ func main() {
 	case list.Parsed():
 		handleList(task, *listAll)
 	case install.Parsed():
-		handleInstall(task, *dryRun, *installAll, *installOS, *installArch, *installVersions)
+		handleInstall(task, *installAll, *installOS, *installArch, *installVersions)
 	case uninstall.Parsed():
-		handleUninstall(task, *dryRun, *uninstallAll, *uninstallVersions)
+		handleUninstall(task, *uninstallAll, *uninstallVersions)
 	case selectz.Parsed():
-		handleSelect(task, *dryRun, *selectVersions)
+		handleSelect(task, *selectVersions)
 	case unselect.Parsed():
-		handleUnselect(task, *dryRun)
+		handleUnselect(task)
 	case cleanup.Parsed():
-		handleCleanup(task, *dryRun)
+		handleCleanup(task)
 	}
 }
 
@@ -114,7 +109,7 @@ func handleList(task *tasks.Task, all bool) {
 	}
 }
 
-func handleInstall(task *tasks.Task, dryRun, all bool, operatingSystem, arch string, versionNames []string) {
+func handleInstall(task *tasks.Task, all bool, operatingSystem, arch string, versionNames []string) {
 	task.DieIff(len(versionNames) == 0, "No versions given to install, skipping")
 
 	if len(versionNames) == 1 && versionNames[0] == "latest" {
@@ -130,19 +125,19 @@ func handleInstall(task *tasks.Task, dryRun, all bool, operatingSystem, arch str
 			task.DieOnError(err)
 		}
 
-		goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
+		goManager, err := manager.NewManager(task, gomanRoot())
 		task.DieOnError(err)
 		goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all))
 	}
 }
 
-func handleUninstall(task *tasks.Task, dryRun bool, all bool, versionNames []string) {
+func handleUninstall(task *tasks.Task, all bool, versionNames []string) {
 	root := gomanRoot()
 
 	task.DieIff(!all && len(versionNames) == 0, "No versions to uninstall, skipping.")
 	task.DieIff(all && len(versionNames) > 0, "Both all flag and versions given, skipping.")
 
-	goManager, err := manager.NewManager(task, root, dryRun)
+	goManager, err := manager.NewManager(task, root)
 	task.DieOnError(err)
 
 	if all {
@@ -157,7 +152,7 @@ func handleUninstall(task *tasks.Task, dryRun bool, all bool, versionNames []str
 	}
 }
 
-func handleSelect(task *tasks.Task, dryRun bool, versionNames []string) {
+func handleSelect(task *tasks.Task, versionNames []string) {
 	task.DieIff(len(versionNames) == 0, "No version to select, skipping.")
 	task.DieIff(len(versionNames) > 1, "More then one version to select, skipping.")
 
@@ -166,19 +161,19 @@ func handleSelect(task *tasks.Task, dryRun bool, versionNames []string) {
 		task.DieOnError(err)
 	}
 
-	goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
+	goManager, err := manager.NewManager(task, gomanRoot())
 	task.DieOnError(err)
 	goManager.Select(parsedVersion)
 }
 
-func handleUnselect(task *tasks.Task, dryRun bool) {
-	goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
+func handleUnselect(task *tasks.Task) {
+	goManager, err := manager.NewManager(task, gomanRoot())
 	task.DieOnError(err)
 	goManager.Unselect()
 }
 
-func handleCleanup(task *tasks.Task, dryRun bool) {
-	goManager, err := manager.NewManager(task, gomanRoot(), dryRun)
+func handleCleanup(task *tasks.Task) {
+	goManager, err := manager.NewManager(task, gomanRoot())
 	task.DieOnError(err)
 	goManager.Cleanup()
 }

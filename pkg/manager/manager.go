@@ -20,9 +20,6 @@ const (
 type GoManager struct {
 	// The root directory stores the installed SDKs as well as any configuration files.
 	RootDirectory string
-	// The dry run flag controls if functions of this struct actual perform any changes or just give feedback to the user
-	// what would have happened, if they would be actually called.
-	DryRun bool
 	// The collection of all currently installed versions of the Go SDK.
 	InstalledVersions version.Collection
 	// The currently selected version. The selected version is the release that is synced to the "selected" directory. Might
@@ -34,8 +31,8 @@ type GoManager struct {
 
 // NewManager is a constructor for the GoManager struct.
 // It reads through the given root directory and detects the current state and initializes the GoManager instance
-// accordingly. The dryRun parameter can be used to make the returned instance 'ready-only'.
-func NewManager(task *tasks.Task, rootDirectory string, dryRun bool) (*GoManager, error) {
+// accordingly.
+func NewManager(task *tasks.Task, rootDirectory string) (*GoManager, error) {
 	var selectedVersion *version.Version
 	var installedVersions version.Collection
 
@@ -61,7 +58,6 @@ func NewManager(task *tasks.Task, rootDirectory string, dryRun bool) (*GoManager
 
 	return &GoManager{
 		RootDirectory:     rootDirectory,
-		DryRun:            dryRun,
 		InstalledVersions: installedVersions,
 		SelectedVersion:   selectedVersion,
 		task:              task,

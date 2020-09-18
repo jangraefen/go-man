@@ -32,40 +32,34 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 
 	if _, err := os.Stat(destinationFile); err != nil && os.IsNotExist(err) {
 		installTask.Printf("Downloading: %s", file.GetURL())
-		if !m.DryRun {
 			installTask.DieOnError(file.Download(destinationFile, false))
-		}
 	} else {
 		installTask.Printf("Downloading: Skipping, since %s is already present", destinationFile)
 	}
 
 	installTask.Printf("Verifying integrity: %s", file.Sha256)
-	if !m.DryRun {
-		same, err := file.VerifySame(destinationFile)
-		installTask.DieOnError(err)
-		installTask.DieIff(
-			!same,
-			"Downloaded file %s could not be verified because the checksums did not match",
-			destinationFile,
-		)
-	}
+
+	same, err := file.VerifySame(destinationFile)
+	installTask.DieOnError(err)
+	installTask.DieIff(
+		!same,
+		"Downloaded file %s could not be verified because the checksums did not match",
+		destinationFile,
+	)
 
 	if _, err := os.Stat(destinationDirectory); err != nil && os.IsNotExist(err) {
 		installTask.Printf("Extracting: %s", file.Filename)
-		if !m.DryRun {
 			installTask.DieOnError(archiver.Unarchive(destinationFile, destinationDirectory))
-		}
 	} else {
 		installTask.Printf("Extracting: Skipping, since %s is already extracted", file.Version)
 	}
 
 	installTask.Printf("Verifying installation: %s", destinationDirectory)
-	if !m.DryRun {
-		detectedVersion, err := detectGoVersion(filepath.Join(destinationDirectory, "go"))
-		installTask.DieOnError(err)
-		installTask.DieIff(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
 
-		m.InstalledVersions = append(m.InstalledVersions, versionNumber)
-		sort.Sort(m.InstalledVersions)
-	}
+	detectedVersion, err := detectGoVersion(filepath.Join(destinationDirectory, "go"))
+	installTask.DieOnError(err)
+	installTask.DieIff(!detectedVersion.Equal(versionNumber), "Could not verify installation: %s", detectedVersion)
+
+	m.InstalledVersions = append(m.InstalledVersions, versionNumber)
+	sort.Sort(m.InstalledVersions)
 }
