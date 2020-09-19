@@ -77,12 +77,8 @@ func TestReleaseFile_GetURL(t *testing.T) {
 }
 
 func TestReleaseFile_Download(t *testing.T) {
-	tempDir, _ := ioutil.TempDir("", "release_test")
+	tempDir := t.TempDir()
 	targetFile := filepath.Join(tempDir, "download.file")
-
-	defer func() {
-		_ = os.Remove(targetFile)
-	}()
 
 	sut := &ReleaseFile{}
 	assert.Error(t, sut.Download(targetFile, false))
@@ -104,14 +100,9 @@ func TestReleaseFile_Download(t *testing.T) {
 }
 
 func TestReleaseFile_VerifySame(t *testing.T) {
-	tempDir, _ := ioutil.TempDir("", "release_test")
+	tempDir := t.TempDir()
 	mockFile := filepath.Join(tempDir, "mock.file")
 	targetFile := filepath.Join(tempDir, "verify.file")
-
-	defer func() {
-		_ = os.Remove(targetFile)
-		_ = os.Remove(mockFile)
-	}()
 
 	sut := &ReleaseFile{
 		Filename: "go1.15.2.windows-amd64.zip",

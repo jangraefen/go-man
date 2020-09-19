@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"io/ioutil"
 	"path/filepath"
 	"testing"
 
@@ -9,14 +8,14 @@ import (
 )
 
 func TestPathExists(t *testing.T) {
-	directory, _ := ioutil.TempDir("", "goman-utils-io-TestPathExists")
+	directory := t.TempDir()
 
 	assert.False(t, PathExists(filepath.Join("not", "existent", "directory")))
 	assert.True(t, PathExists(directory))
 }
 
 func TestTryRemove(t *testing.T) {
-	directory, _ := ioutil.TempDir("", "goman-utils-io-TestTryRemove")
+	directory := t.TempDir()
 
 	assert.False(t, TryRemove(filepath.Join("not", "existent", "directory")))
 	assert.True(t, TryRemove(directory))

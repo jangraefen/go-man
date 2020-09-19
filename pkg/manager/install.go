@@ -7,9 +7,9 @@ import (
 	"sort"
 
 	"github.com/hashicorp/go-version"
-	"github.com/mholt/archiver/v3"
 
 	"github.com/NoizeMe/go-man/pkg/releases"
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 // Install is a function that installs new instances of the Go SDK.
@@ -76,11 +76,7 @@ func verifyDownload(file releases.ReleaseFile, destinationFile string) error {
 }
 
 func extractRelease(destinationFile string, destinationDirectory string) (bool, error) {
-	if _, err := os.Stat(destinationDirectory); err == nil || !os.IsNotExist(err) {
-		return false, nil
-	}
-
-	return true, archiver.Unarchive(destinationFile, destinationDirectory)
+	return utils.ExtractArchive(destinationFile, destinationDirectory, false)
 }
 
 func verifyRelease(versionNumber *version.Version, destinationDirectory string) error {
