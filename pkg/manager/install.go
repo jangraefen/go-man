@@ -15,16 +15,22 @@ import (
 // As installation parameters the version number, operating system and platform architecture are considered when choosing the
 // correct installation artifacts. The releaseType parameter is used to limit the amount of accepted versions. Feedback is
 // directly printed to the stdout or stderr, so nothing is returned here.
-func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arch string, releaseType releases.ReleaseType) {
+func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arch string, releaseType releases.ReleaseType) error {
 	m.task.Printf("Installing %s %s-%s:", versionNumber, operatingSystem, arch)
 	installTask := m.task.Step()
 
 	release, releasePresent, err := releases.GetForVersion(releaseType, versionNumber)
-	installTask.DieOnError(err)
-	installTask.DieIff(!releasePresent, "release with versionName %s not present", versionNumber)
+	if err != nil {
+		return err
+	}
+	if !releasePresent {
+		return fmt.Errorf("release with versionName %s not present", versionNumber)
+	}
 
 	files := release.FindFiles(operatingSystem, arch, releases.ArchiveFile)
-	installTask.DieIff(len(files) != 1, "release %s with %s-%s not present", versionNumber, operatingSystem, arch)
+	if len(files) != 1 {
+		return fmt.Errorf("release %s with %s-%s not present", versionNumber, operatingSystem, arch)
+	}
 
 	file := files[0]
 	destinationFile := filepath.Join(m.RootDirectory, file.Filename)
@@ -32,26 +38,36 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 
 	installTask.Printf("Downloading: %s", file.GetURL())
 	downloaded, err := downloadRelease(file, destinationFile)
-	installTask.DieOnError(err)
+	if err != nil {
+		return err
+	}
 	if !downloaded {
 		installTask.Printf("Downloading: Skipping, since %s is already present", destinationFile)
 	}
 
 	installTask.Printf("Verifying integrity: %s", file.Sha256)
-	installTask.DieOnError(verifyDownload(file, destinationFile))
+	if err := verifyDownload(file, destinationFile); err != nil {
+		return err
+	}
 
 	installTask.Printf("Extracting: %s", file.Filename)
 	extracted, err := extractRelease(destinationFile, destinationDirectory)
-	installTask.DieOnError(err)
+	if err != nil {
+		return err
+	}
 	if !extracted {
 		installTask.Printf("Extracting: Skipping, since %s is already extracted", file.Version)
 	}
 
 	installTask.Printf("Verifying installation: %s", destinationDirectory)
-	installTask.DieOnError(verifyRelease(versionNumber, destinationDirectory))
+	if err := verifyRelease(versionNumber, destinationDirectory); err != nil {
+		return err
+	}
 
 	m.InstalledVersions = append(m.InstalledVersions, versionNumber)
 	sort.Sort(m.InstalledVersions)
+
+	return nil
 }
 
 func downloadRelease(file releases.ReleaseFile, destinationFile string) (bool, error) {

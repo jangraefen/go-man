@@ -127,7 +127,7 @@ func handleInstall(task *tasks.Task, all bool, operatingSystem, arch string, ver
 
 		goManager, err := manager.NewManager(task, gomanRoot())
 		task.DieOnError(err)
-		goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all))
+		task.DieOnError(goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all)))
 	}
 }
 
