@@ -42,7 +42,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 		return err
 	}
 	if !downloaded {
-		installTask.Printf("Downloading: Skipping, since %s is already present", destinationFile)
+		return fmt.Errorf("download skipping, since %s is already present", destinationFile)
 	}
 
 	installTask.Printf("Verifying integrity: %s", file.Sha256)
@@ -56,7 +56,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 		return err
 	}
 	if !extracted {
-		installTask.Printf("Extracting: Skipping, since %s is already extracted", file.Version)
+		return fmt.Errorf("extraction skipping, since %s is already present", file.Version)
 	}
 
 	installTask.Printf("Verifying installation: %s", destinationDirectory)
