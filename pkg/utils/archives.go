@@ -15,6 +15,5 @@ func ExtractArchive(archiveFile, destinationDirection string, overwrite bool) (b
 
 	TryRemove(destinationDirection)
 
-	err := archiver.Unarchive(archiveFile, destinationDirection)
-	return err == nil, err
+	return true, archiver.Unarchive(archiveFile, destinationDirection)
 }

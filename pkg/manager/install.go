@@ -2,7 +2,6 @@ package manager
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 
@@ -56,11 +55,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 }
 
 func downloadRelease(file releases.ReleaseFile, destinationFile string) (bool, error) {
-	if _, err := os.Stat(destinationFile); err == nil || !os.IsNotExist(err) {
-		return false, nil
-	}
-
-	return true, file.Download(destinationFile, false)
+	return utils.DownloadFile(file.GetURL(), destinationFile, false)
 }
 
 func verifyDownload(file releases.ReleaseFile, destinationFile string) error {

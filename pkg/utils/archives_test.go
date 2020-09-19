@@ -15,7 +15,7 @@ func TestExtractArchive(t *testing.T) {
 
 	extracted, err := ExtractArchive("MISSING_FILE.zip", missingDirectory, false)
 	assert.Error(t, err)
-	assert.False(t, extracted)
+	assert.True(t, extracted)
 
 	extracted, err = ExtractArchive(archiveFile, destinationDirectory, false)
 	assert.NoError(t, err)
