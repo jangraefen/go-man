@@ -50,6 +50,7 @@ jobs:
       - name: Report coverage
         uses: codecov/codecov-action@v1
         with:
+          flags: ${{ matrix.platform }}
           file: coverprofile.txt
           fail_ci_if_error: true
 
