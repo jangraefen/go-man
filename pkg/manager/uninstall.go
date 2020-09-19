@@ -9,31 +9,42 @@ import (
 )
 
 // UninstallAll is a function that removes all current installations of the Go SDK.
-func (m *GoManager) UninstallAll() {
+func (m *GoManager) UninstallAll() error {
 	installedVersions := make(version.Collection, len(m.InstalledVersions))
 	copy(installedVersions, m.InstalledVersions)
 
 	for _, versionNumber := range installedVersions {
-		m.Uninstall(versionNumber)
+		if err := m.Uninstall(versionNumber); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 // Uninstall is a function that removes an existing installation of the Go SDK.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
-func (m *GoManager) Uninstall(versionNumber *version.Version) {
+func (m *GoManager) Uninstall(versionNumber *version.Version) error {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	versionArchive := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s*", versionNumber))
 
 	if versionNumber.Equal(m.SelectedVersion) {
-		m.Unselect()
+		if err := m.Unselect(); err != nil {
+			return err
+		}
 	}
 
 	m.task.Printf("Removing %s", versionNumber)
-	uninstallTask := m.task.Step()
 
+	uninstallTask := m.task.Step()
 	uninstallTask.Printf("Deleting SDK: %s", versionDirectory)
-	uninstallTask.DieOnError(deleteVersionDirectory(versionDirectory))
-	uninstallTask.DieOnError(deleteVersionArchive(versionArchive))
+
+	if err := deleteVersionDirectory(versionDirectory); err != nil {
+		return err
+	}
+	if err := deleteVersionArchive(versionArchive); err != nil {
+		return err
+	}
 
 	for index, installedVersion := range m.InstalledVersions {
 		if installedVersion.Equal(versionNumber) {
@@ -41,6 +52,8 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) {
 			break
 		}
 	}
+
+	return nil
 }
 
 func deleteVersionArchive(archivePattern string) error {

@@ -141,13 +141,12 @@ func handleUninstall(task *tasks.Task, all bool, versionNames []string) {
 	task.DieOnError(err)
 
 	if all {
-		goManager.UninstallAll()
+		task.DieOnError(goManager.UninstallAll())
 	} else {
 		for _, versionName := range versionNames {
 			versionNumber, err := version.NewVersion(versionName)
 			task.DieOnError(err)
-
-			goManager.Uninstall(versionNumber)
+			task.DieOnError(goManager.Uninstall(versionNumber))
 		}
 	}
 }
@@ -163,19 +162,19 @@ func handleSelect(task *tasks.Task, versionNames []string) {
 
 	goManager, err := manager.NewManager(task, gomanRoot())
 	task.DieOnError(err)
-	goManager.Select(parsedVersion)
+	task.DieOnError(goManager.Select(parsedVersion))
 }
 
 func handleUnselect(task *tasks.Task) {
 	goManager, err := manager.NewManager(task, gomanRoot())
 	task.DieOnError(err)
-	goManager.Unselect()
+	task.DieOnError(goManager.Unselect())
 }
 
 func handleCleanup(task *tasks.Task) {
 	goManager, err := manager.NewManager(task, gomanRoot())
 	task.DieOnError(err)
-	goManager.Cleanup()
+	task.DieOnError(goManager.Cleanup())
 }
 
 func gomanRoot() string {
