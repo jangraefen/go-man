@@ -46,12 +46,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Run tests
-        run: go test -v -race -covermode=atomic "-coverprofile=coverprofile.txt" ./...
+        run: go test -v -race -covermode=atomic "-coverprofile=coverprofile.out" ./...
       - name: Report coverage
         uses: codecov/codecov-action@v1
         with:
           flags: ${{ matrix.platform }}
-          file: coverprofile.txt
+          file: coverprofile.out
           fail_ci_if_error: true
 
   build:
