@@ -24,7 +24,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 		return err
 	}
 	if !releasePresent {
-		return fmt.Errorf("release with versionName %s not present", versionNumber)
+		return fmt.Errorf("release with version %s not present", versionNumber)
 	}
 
 	files := release.FindFiles(operatingSystem, arch, releases.ArchiveFile)
@@ -37,12 +37,8 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	destinationDirectory := filepath.Join(m.RootDirectory, file.Version)
 
 	installTask.Printf("Downloading: %s", file.GetURL())
-	downloaded, err := downloadRelease(file, destinationFile)
-	if err != nil {
+	if err := downloadRelease(file, destinationFile); err != nil {
 		return err
-	}
-	if !downloaded {
-		return fmt.Errorf("download skipping, since %s is already present", destinationFile)
 	}
 
 	installTask.Printf("Verifying integrity: %s", file.Sha256)
@@ -51,12 +47,8 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	}
 
 	installTask.Printf("Extracting: %s", file.Filename)
-	extracted, err := extractRelease(destinationFile, destinationDirectory)
-	if err != nil {
+	if err := extractRelease(destinationFile, destinationDirectory); err != nil {
 		return err
-	}
-	if !extracted {
-		return fmt.Errorf("extraction skipping, since %s is already present", file.Version)
 	}
 
 	installTask.Printf("Verifying installation: %s", destinationDirectory)
@@ -70,8 +62,16 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	return nil
 }
 
-func downloadRelease(file releases.ReleaseFile, destinationFile string) (bool, error) {
-	return utils.DownloadFile(file.GetURL(), destinationFile, false)
+func downloadRelease(file releases.ReleaseFile, destinationFile string) error {
+	downloaded, err := utils.DownloadFile(file.GetURL(), destinationFile, false)
+	if err != nil {
+		return err
+	}
+	if !downloaded {
+		return fmt.Errorf("download skipping, since %s is already present", destinationFile)
+	}
+
+	return nil
 }
 
 func verifyDownload(file releases.ReleaseFile, destinationFile string) error {
@@ -86,8 +86,16 @@ func verifyDownload(file releases.ReleaseFile, destinationFile string) error {
 	return nil
 }
 
-func extractRelease(destinationFile string, destinationDirectory string) (bool, error) {
-	return utils.ExtractArchive(destinationFile, destinationDirectory, false)
+func extractRelease(destinationFile string, destinationDirectory string) error {
+	extracted, err := utils.ExtractArchive(destinationFile, destinationDirectory, false)
+	if err != nil {
+		return err
+	}
+	if !extracted {
+		return fmt.Errorf("extraction skipping, since %s is already present", destinationDirectory)
+	}
+
+	return nil
 }
 
 func verifyRelease(versionNumber *version.Version, destinationDirectory string) error {
