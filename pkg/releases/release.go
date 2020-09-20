@@ -4,9 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -92,51 +90,6 @@ func (f ReleaseFile) GetURL() string {
 	}
 
 	return fmt.Sprintf(fileURLTemplate, f.Filename)
-}
-
-// Download is a function that downloads the receiving release file to the given destination file.
-// If the destination file already exists it is overwritten, except if the skipIfPresent flag is set to true. In this case
-// nothing will be downloaded.
-func (f ReleaseFile) Download(destinationFile string, skipIfPresent bool) error {
-	if stat, err := os.Stat(destinationFile); err == nil && !stat.IsDir() {
-		if skipIfPresent {
-			return nil
-		} else if err = os.Remove(destinationFile); err != nil {
-			return err
-		}
-	}
-
-	directory, _ := filepath.Split(destinationFile)
-	if err := os.MkdirAll(directory, 0755); err != nil {
-		return err
-	}
-
-	response, err := http.Get(f.GetURL())
-	if err != nil {
-		return err
-	}
-	if response.StatusCode != 200 {
-		return fmt.Errorf("unexpected status while retrieving release file: %s", response.Status)
-	}
-
-	defer func() {
-		_ = response.Body.Close()
-	}()
-
-	file, err := os.Create(destinationFile)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		_ = file.Close()
-	}()
-
-	if _, err := io.Copy(file, response.Body); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // VerifySame is a function that checks if a given file has the correct checksum.

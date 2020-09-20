@@ -46,11 +46,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Run tests
-        run: go test -v -race -covermode=atomic "-coverprofile=coverprofile.txt" ./...
+        run: go test -v -race -covermode=atomic "-coverprofile=coverprofile.out" ./...
       - name: Report coverage
         uses: codecov/codecov-action@v1
         with:
-          file: coverprofile.txt
+          flags: ${{ matrix.platform }}
+          file: coverprofile.out
           fail_ci_if_error: true
 
   build:
@@ -70,9 +71,9 @@ jobs:
       - name: Build
         run: |
           export GO111MODULE=on
-          GOOS=darwin  GOARCH=amd64 go build -o bin/goman-ci-darwin-amd64      cmd/main.go
-          GOOS=linux   GOARCH=amd64 go build -o bin/goman-ci-linux-amd64       cmd/main.go
-          GOOS=windows GOARCH=amd64 go build -o bin/goman-ci-windows-amd64.exe cmd/main.go
+          GOOS=darwin  GOARCH=amd64 go build -o bin/goman-ci-darwin-amd64      cmd/goman/main.go
+          GOOS=linux   GOARCH=amd64 go build -o bin/goman-ci-linux-amd64       cmd/goman/main.go
+          GOOS=windows GOARCH=amd64 go build -o bin/goman-ci-windows-amd64.exe cmd/goman/main.go
       - name: Upload Artifacts
         uses: actions/upload-artifact@master
         with:

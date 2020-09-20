@@ -2,13 +2,14 @@ package releases
 
 import (
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"sort"
 	"testing"
 
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 func TestRelease_GetVersionNumber(t *testing.T) {
@@ -76,48 +77,17 @@ func TestReleaseFile_GetURL(t *testing.T) {
 	assert.Equal(t, "https://golang.org/dl/go1.15.2.windows-amd64.zip", sut.GetURL())
 }
 
-func TestReleaseFile_Download(t *testing.T) {
-	tempDir, _ := ioutil.TempDir("", "release_test")
-	targetFile := filepath.Join(tempDir, "download.file")
-
-	defer func() {
-		_ = os.Remove(targetFile)
-	}()
-
-	sut := &ReleaseFile{}
-	assert.Error(t, sut.Download(targetFile, false))
-
-	sut.Filename = ""
-	assert.Error(t, sut.Download(targetFile, false))
-
-	sut.Filename = "go1.15.2.windows-amd64.zip"
-	assert.NoError(t, sut.Download(targetFile, false))
-
-	stat, err := os.Stat(targetFile)
-	assert.Nil(t, err)
-	assert.Greater(t, stat.Size(), int64(0))
-
-	assert.NoError(t, sut.Download(targetFile, true))
-	statNew, err := os.Stat(targetFile)
-	assert.NoError(t, err)
-	assert.Equal(t, stat.ModTime(), statNew.ModTime())
-}
-
 func TestReleaseFile_VerifySame(t *testing.T) {
-	tempDir, _ := ioutil.TempDir("", "release_test")
+	tempDir := t.TempDir()
 	mockFile := filepath.Join(tempDir, "mock.file")
 	targetFile := filepath.Join(tempDir, "verify.file")
-
-	defer func() {
-		_ = os.Remove(targetFile)
-		_ = os.Remove(mockFile)
-	}()
 
 	sut := &ReleaseFile{
 		Filename: "go1.15.2.windows-amd64.zip",
 	}
 
-	assert.NoError(t, sut.Download(targetFile, false))
+	_, downloadErr := utils.DownloadFile(sut.GetURL(), targetFile, false)
+	assert.NoError(t, downloadErr)
 	assert.NoError(t, ioutil.WriteFile(mockFile, []byte("NOT_THE_EXPECTED_CONTENT"), 0600))
 
 	same, err := sut.VerifySame("I_DO_NOT_EXIST.txt")

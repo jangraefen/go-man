@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/posener/cmd"
 
-	"github.com/NoizeMe/go-man/pkg/logging"
 	"github.com/NoizeMe/go-man/pkg/manager"
 	"github.com/NoizeMe/go-man/pkg/releases"
+	"github.com/NoizeMe/go-man/pkg/tasks"
 )
 
 var (
@@ -67,47 +67,54 @@ var (
 )
 
 func main() {
+	task := &tasks.Task{
+		ErrorExitCode: 1,
+		Output:        os.Stdout,
+		Error:         os.Stderr,
+	}
+
 	// Parse the command line arguments. Any errors will get caught be the library and will cause the usage to be printed.
 	// The program will exit afterwards.
 	_ = root.Parse()
 
 	if stat, err := os.Stat(gomanRoot()); err != nil && os.IsNotExist(err) || !stat.IsDir() {
-		logging.IfError(os.MkdirAll(gomanRoot(), 0755))
+		task.DieOnError(os.MkdirAll(gomanRoot(), 0755))
 	}
 
 	switch {
 	case list.Parsed():
-		handleList(*listAll)
+		handleList(task, *listAll)
 	case install.Parsed():
-		handleInstall(*installAll, *installOS, *installArch, *installVersions)
+		handleInstall(task, *installAll, *installOS, *installArch, *installVersions)
 	case uninstall.Parsed():
-		handleUninstall(*uninstallAll, *uninstallVersions)
+		handleUninstall(task, *uninstallAll, *uninstallVersions)
 	case selectz.Parsed():
-		handleSelect(*selectVersions)
+		handleSelect(task, *selectVersions)
 	case unselect.Parsed():
-		handleUnselect()
+		handleUnselect(task)
 	case cleanup.Parsed():
-		handleCleanup()
+		handleCleanup(task)
 	}
 }
 
-func handleList(all bool) {
-	logging.Printf("List of available releases:")
+func handleList(task *tasks.Task, all bool) {
+	task.Printf("List of available releases:")
+	listTask := task.Step()
 
 	releaseList, err := releases.ListAll(releases.SelectReleaseType(all))
-	logging.IfTaskError(err)
+	listTask.DieOnError(err)
 
 	for _, r := range releaseList {
-		logging.TaskPrintf("%s", r.GetVersionNumber())
+		listTask.Printf("%s", r.GetVersionNumber())
 	}
 }
 
-func handleInstall(all bool, operatingSystem, arch string, versionNames []string) {
-	logging.IfErrorf(len(versionNames) == 0, "No versions given to install, skipping")
+func handleInstall(task *tasks.Task, all bool, operatingSystem, arch string, versionNames []string) {
+	task.DieIff(len(versionNames) == 0, "No versions given to install, skipping")
 
 	if len(versionNames) == 1 && versionNames[0] == "latest" {
 		latest, err := releases.GetLatest(releases.SelectReleaseType(all))
-		logging.IfError(err)
+		task.DieOnError(err)
 
 		versionNames = []string{latest.GetVersionNumber().String()}
 	}
@@ -115,60 +122,59 @@ func handleInstall(all bool, operatingSystem, arch string, versionNames []string
 	for _, versionName := range versionNames {
 		parsedVersion, err := version.NewVersion(versionName)
 		if err != nil {
-			logging.IfError(err)
+			task.DieOnError(err)
 		}
 
-		goManager, err := manager.NewManager(gomanRoot())
-		logging.IfError(err)
-		goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all))
+		goManager, err := manager.NewManager(task, gomanRoot())
+		task.DieOnError(err)
+		task.DieOnError(goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all)))
 	}
 }
 
-func handleUninstall(all bool, versionNames []string) {
+func handleUninstall(task *tasks.Task, all bool, versionNames []string) {
 	root := gomanRoot()
 
-	logging.IfErrorf(!all && len(versionNames) == 0, "No versions to uninstall, skipping.")
-	logging.IfErrorf(all && len(versionNames) > 0, "Both all flag and versions given, skipping.")
+	task.DieIff(!all && len(versionNames) == 0, "No versions to uninstall, skipping.")
+	task.DieIff(all && len(versionNames) > 0, "Both all flag and versions given, skipping.")
 
-	goManager, err := manager.NewManager(root)
-	logging.IfError(err)
+	goManager, err := manager.NewManager(task, root)
+	task.DieOnError(err)
 
 	if all {
-		goManager.UninstallAll()
+		task.DieOnError(goManager.UninstallAll())
 	} else {
 		for _, versionName := range versionNames {
 			versionNumber, err := version.NewVersion(versionName)
-			logging.IfError(err)
-
-			goManager.Uninstall(versionNumber)
+			task.DieOnError(err)
+			task.DieOnError(goManager.Uninstall(versionNumber))
 		}
 	}
 }
 
-func handleSelect(versionNames []string) {
-	logging.IfErrorf(len(versionNames) == 0, "No version to select, skipping.")
-	logging.IfErrorf(len(versionNames) > 1, "More then one version to select, skipping.")
+func handleSelect(task *tasks.Task, versionNames []string) {
+	task.DieIff(len(versionNames) == 0, "No version to select, skipping.")
+	task.DieIff(len(versionNames) > 1, "More then one version to select, skipping.")
 
 	parsedVersion, err := version.NewVersion(versionNames[0])
 	if err != nil {
-		logging.IfError(err)
+		task.DieOnError(err)
 	}
 
-	goManager, err := manager.NewManager(gomanRoot())
-	logging.IfError(err)
-	goManager.Select(parsedVersion)
+	goManager, err := manager.NewManager(task, gomanRoot())
+	task.DieOnError(err)
+	task.DieOnError(goManager.Select(parsedVersion))
 }
 
-func handleUnselect() {
-	goManager, err := manager.NewManager(gomanRoot())
-	logging.IfError(err)
-	goManager.Unselect()
+func handleUnselect(task *tasks.Task) {
+	goManager, err := manager.NewManager(task, gomanRoot())
+	task.DieOnError(err)
+	task.DieOnError(goManager.Unselect())
 }
 
-func handleCleanup() {
-	goManager, err := manager.NewManager(gomanRoot())
-	logging.IfError(err)
-	goManager.Cleanup()
+func handleCleanup(task *tasks.Task) {
+	goManager, err := manager.NewManager(task, gomanRoot())
+	task.DieOnError(err)
+	task.DieOnError(goManager.Cleanup())
 }
 
 func gomanRoot() string {

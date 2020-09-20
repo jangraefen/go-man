@@ -7,47 +7,75 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/pkg/logging"
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 // UninstallAll is a function that removes all current installations of the Go SDK.
-func (m *GoManager) UninstallAll() {
+func (m *GoManager) UninstallAll() error {
 	installedVersions := make(version.Collection, len(m.InstalledVersions))
 	copy(installedVersions, m.InstalledVersions)
 
 	for _, versionNumber := range installedVersions {
-		m.Uninstall(versionNumber)
+		if err := m.Uninstall(versionNumber); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 // Uninstall is a function that removes an existing installation of the Go SDK.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
-func (m *GoManager) Uninstall(versionNumber *version.Version) {
+func (m *GoManager) Uninstall(versionNumber *version.Version) error {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	versionArchive := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s*", versionNumber))
 
 	if versionNumber.Equal(m.SelectedVersion) {
-		m.Unselect()
+		if err := m.Unselect(); err != nil {
+			return err
+		}
 	}
 
-	logging.Printf("Removing %s", versionNumber)
+	m.task.Printf("Removing %s", versionNumber)
 
-	logging.TaskPrintf("Deleting SDK: %s", versionDirectory)
-	logging.IfTaskError(os.RemoveAll(versionDirectory))
+	uninstallTask := m.task.Step()
+	uninstallTask.Printf("Deleting SDK: %s", versionDirectory)
 
-	matches, err := filepath.Glob(versionArchive)
-	logging.IfTaskError(err)
-
-	for _, match := range matches {
-		logging.TaskPrintf("Deleting SDK archive: %s", match)
-		logging.IfTaskError(os.Remove(match))
+	if !utils.PathExists(versionDirectory) {
+		return fmt.Errorf("no directory %s to uninstall from", versionDirectory)
+	}
+	if err := deleteVersionDirectory(versionDirectory); err != nil {
+		return err
+	}
+	if err := deleteVersionArchive(versionArchive); err != nil {
+		return err
 	}
 
 	for index, installedVersion := range m.InstalledVersions {
 		if installedVersion.Equal(versionNumber) {
 			m.InstalledVersions = append(m.InstalledVersions[:index], m.InstalledVersions[index+1:]...)
-
 			break
 		}
 	}
+
+	return nil
+}
+
+func deleteVersionArchive(archivePattern string) error {
+	matches, err := filepath.Glob(archivePattern)
+	if err != nil {
+		return err
+	}
+
+	for _, match := range matches {
+		if err := os.Remove(match); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func deleteVersionDirectory(directory string) error {
+	return os.RemoveAll(directory)
 }
