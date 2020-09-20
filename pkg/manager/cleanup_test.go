@@ -25,11 +25,16 @@ func TestGoManager_Cleanup(t *testing.T) {
 	setupInstallation(t, tempDir, stableVersion)
 	setupInstallation(t, tempDir, unstableVersion)
 
-	sut, err := NewManager(&tasks.Task{
-		ErrorExitCode: 1,
-		Output:        os.Stdout,
-		Error:         os.Stderr,
-	}, tempDir)
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{stableVersion, unstableVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
 
 	assert.NoError(t, err)
 	assert.NotNil(t, sut)
