@@ -8,7 +8,7 @@ import (
 
 // Cleanup is a function that removes all Go SDK installations that are currently not considered stable.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
-func (m GoManager) Cleanup() error {
+func (m *GoManager) Cleanup() error {
 	m.task.Printf("Removing all non-stable versions")
 
 	versionsToRemove, err := filterNonStableVersions(m.InstalledVersions)
