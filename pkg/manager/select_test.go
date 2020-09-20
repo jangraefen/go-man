@@ -63,7 +63,7 @@ func TestGoManager_Unselect(t *testing.T) {
 	sut := &GoManager{
 		RootDirectory:     tempDir,
 		InstalledVersions: version.Collection{validVersion},
-		SelectedVersion:   validVersion,
+		SelectedVersion:   nil,
 		task: &tasks.Task{
 			ErrorExitCode: 1,
 			Output:        os.Stdout,
@@ -73,11 +73,12 @@ func TestGoManager_Unselect(t *testing.T) {
 	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.Unselect())
-	assert.NoDirExists(t, selectedPath)
+	assert.False(t, utils.PathExists(selectedPath))
 
 	assert.NoError(t, link(sdkPath, selectedPath))
+	sut.SelectedVersion = validVersion
 
 	assert.NoError(t, sut.Unselect())
-	assert.NoDirExists(t, selectedPath)
+	assert.False(t, utils.PathExists(selectedPath))
 	assert.DirExists(t, sdkPath)
 }
