@@ -35,13 +35,13 @@ func TestGoManager_Cleanup(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-
-	assert.NoError(t, err)
 	assert.NotNil(t, sut)
 
 	assert.NoError(t, sut.Cleanup())
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", stableVersion)))
-	assert.FileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-amd64-windows.zip", stableVersion)))
+	assert.FileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-windows-amd64.zip", stableVersion)))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", unstableVersion)))
-	assert.NoFileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-amd64-windows.zip", unstableVersion)))
+	assert.NoFileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-windows-amd64.zip", unstableVersion)))
+
+	assert.NoError(t, sut.Cleanup())
 }

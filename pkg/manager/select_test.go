@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 func TestGoManager_Select(t *testing.T) {
@@ -22,29 +23,32 @@ func TestGoManager_Select(t *testing.T) {
 	setupInstallation(t, tempDir, validVersion)
 	setupInstallation(t, tempDir, anotherValidVersion)
 
-	sut, err := NewManager(&tasks.Task{
-		ErrorExitCode: 1,
-		Output:        os.Stdout,
-		Error:         os.Stderr,
-	}, tempDir)
-
-	assert.NoError(t, err)
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{validVersion, anotherValidVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
 	assert.NotNil(t, sut)
 
 	assert.NoError(t, sut.Select(validVersion))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
-	assert.DirExists(t, filepath.Join(tempDir, selectedDirectoryName))
+	assert.True(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	assert.NoError(t, sut.Select(anotherValidVersion))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
-	assert.DirExists(t, filepath.Join(tempDir, selectedDirectoryName))
+	assert.True(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	assert.Error(t, sut.Select(invalidVersion))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
-	assert.DirExists(t, filepath.Join(tempDir, selectedDirectoryName))
+	assert.True(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 }
 
 func TestGoManager_Unselect(t *testing.T) {
@@ -56,13 +60,16 @@ func TestGoManager_Unselect(t *testing.T) {
 
 	setupInstallation(t, tempDir, validVersion)
 
-	sut, err := NewManager(&tasks.Task{
-		ErrorExitCode: 1,
-		Output:        os.Stdout,
-		Error:         os.Stderr,
-	}, tempDir)
-
-	assert.NoError(t, err)
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{validVersion},
+		SelectedVersion:   validVersion,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
 	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.Unselect())
@@ -71,5 +78,6 @@ func TestGoManager_Unselect(t *testing.T) {
 	assert.NoError(t, link(sdkPath, selectedPath))
 
 	assert.NoError(t, sut.Unselect())
-	assert.DirExists(t, selectedPath)
+	assert.NoDirExists(t, selectedPath)
+	assert.DirExists(t, sdkPath)
 }

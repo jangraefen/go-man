@@ -6,22 +6,28 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/go-version"
+
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 // Select is a function that selects an existing installation of the Go SDK as the active one.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Select(versionNumber *version.Version) error {
+	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
+	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
+
 	m.task.Printf("Selecting version as active: %s", versionNumber)
 	selectTask := m.task.Step()
+
+	if !utils.PathExists(versionDirectory) {
+		return fmt.Errorf("version %v was not found", versionNumber)
+	}
 
 	if m.SelectedVersion != nil {
 		if err := m.Unselect(); err != nil {
 			return err
 		}
 	}
-
-	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
-	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
 
 	selectTask.Printf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
 

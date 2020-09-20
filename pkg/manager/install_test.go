@@ -25,7 +25,6 @@ func TestGoManager_Install(t *testing.T) {
 		Output:        os.Stdout,
 		Error:         os.Stderr,
 	}, tempDir)
-
 	assert.NoError(t, err)
 	assert.NotNil(t, sut)
 
