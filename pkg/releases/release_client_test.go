@@ -71,6 +71,10 @@ func TestGetLatest(t *testing.T) {
 }
 
 func TestGetForVersion(t *testing.T) {
+	t.Cleanup(func() {
+		utils.Client = http.DefaultClient
+	})
+
 	release, exists, err := GetForVersion(IncludeAll, version.Must(version.NewVersion("1.12.16")))
 	assert.NoError(t, err)
 	assert.True(t, exists)
