@@ -2,6 +2,7 @@ package manager
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 func TestGoManager_Cleanup(t *testing.T) {
@@ -61,6 +63,31 @@ func TestGoManager_Cleanup_WithInvalid(t *testing.T) {
 		},
 	}
 	assert.NotNil(t, sut)
+
+	assert.Error(t, sut.Cleanup())
+}
+
+func TestGoManager_Cleanup_WithHTTPError(t *testing.T) {
+	t.Cleanup(func() {
+		utils.Client = http.DefaultClient
+	})
+
+	unstableVersion := version.Must(version.NewVersion("1.11.0"))
+
+	tempDir := t.TempDir()
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{unstableVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
+	assert.NotNil(t, sut)
+
+	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
 
 	assert.Error(t, sut.Cleanup())
 }
