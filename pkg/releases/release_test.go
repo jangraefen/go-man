@@ -86,7 +86,7 @@ func TestReleaseFile_VerifySame(t *testing.T) {
 		Filename: "go1.15.2.windows-amd64.zip",
 	}
 
-	_, downloadErr := utils.DownloadFile(sut.GetURL(), targetFile, false)
+	_, downloadErr := utils.GetFile(sut.GetURL(), targetFile, false)
 	assert.NoError(t, downloadErr)
 	assert.NoError(t, ioutil.WriteFile(mockFile, []byte("NOT_THE_EXPECTED_CONTENT"), 0600))
 

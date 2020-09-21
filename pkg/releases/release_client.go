@@ -1,12 +1,12 @@
 package releases
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"sort"
 
 	"github.com/hashicorp/go-version"
+
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 // The ReleaseType type is a string that describes what kind of release types should be returned by a release list.
@@ -40,21 +40,8 @@ func SelectReleaseType(all bool) ReleaseType {
 // This list is retrieved by querying a JSON endpoint that is provided by the official Golang website. If the endpoint
 // responds with any other status code than 200, an error is returned.
 func ListAll(releaseType ReleaseType) (Collection, error) {
-	response, err := http.Get(fmt.Sprintf(releaseListURLTemplate, releaseType))
-	if err != nil {
-		return nil, err
-	}
-	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("unexpected status while retrieving releases: %s", response.Status)
-	}
-
-	defer func() {
-		_ = response.Body.Close()
-	}()
-
 	versions := make([]*Release, 0)
-	err = json.NewDecoder(response.Body).Decode(&versions)
-	if err != nil {
+	if err := utils.GetJSON(fmt.Sprintf(releaseListURLTemplate, releaseType), &versions); err != nil {
 		return nil, err
 	}
 

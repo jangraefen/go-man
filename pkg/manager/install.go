@@ -63,7 +63,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 }
 
 func downloadRelease(file releases.ReleaseFile, destinationFile string) error {
-	downloaded, err := utils.DownloadFile(file.GetURL(), destinationFile, false)
+	downloaded, err := utils.GetFile(file.GetURL(), destinationFile, false)
 	if err != nil {
 		return err
 	}
