@@ -21,10 +21,6 @@ const (
 	IncludeStable = ReleaseType("stable")
 )
 
-var (
-	emptyRelease = &Release{}
-)
-
 // SelectReleaseType is a function that returns the release type that matches the input parameters best.
 // For convenience can be used to get the correct release type by describing what kind of releases are desired and the
 // correct release type is then selected by this function. By default IncludeStable is returned.
@@ -52,7 +48,7 @@ func ListAll(releaseType ReleaseType) (Collection, error) {
 func GetLatest(releaseType ReleaseType) (*Release, error) {
 	releases, err := ListAll(releaseType)
 	if err != nil {
-		return emptyRelease, err
+		return nil, err
 	}
 
 	sort.Sort(releases)
@@ -66,7 +62,7 @@ func GetLatest(releaseType ReleaseType) (*Release, error) {
 func GetForVersion(releaseType ReleaseType, version *version.Version) (*Release, bool, error) {
 	releases, err := ListAll(releaseType)
 	if err != nil {
-		return emptyRelease, false, err
+		return nil, false, err
 	}
 
 	for _, release := range releases {
@@ -75,5 +71,5 @@ func GetForVersion(releaseType ReleaseType, version *version.Version) (*Release,
 		}
 	}
 
-	return emptyRelease, false, nil
+	return nil, false, nil
 }

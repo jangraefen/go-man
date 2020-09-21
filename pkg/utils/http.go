@@ -1,17 +1,25 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 )
 
+var (
+	// Client holds the HTTP client object that is used by the HTTP utils to make HTTP calls.
+	// By default, the http.DefaultClient is used, but this can be changed if needed.
+	Client = http.DefaultClient
+)
+
 // GetJSON is a function that reads a JSON document from a given URL and marshals that into a given result object.
 func GetJSON(url string, result interface{}) error {
-	response, err := http.Get(url) //nolint:gosec
+	response, err := Client.Get(url) //nolint:gosec
 	if err != nil {
 		return err
 	}
@@ -39,7 +47,7 @@ func GetFile(url, destinationFile string, overwrite bool) (bool, error) {
 
 	TryRemove(destinationFile)
 
-	response, err := http.Get(url) //nolint:gosec
+	response, err := Client.Get(url) //nolint:gosec
 	if err != nil {
 		return true, err
 	}
@@ -70,4 +78,39 @@ func GetFile(url, destinationFile string, overwrite bool) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// StaticResponseClient is a function that create a HTTP client that always produces the same response.
+// This is primarily used by tests.
+func StaticResponseClient(statusCode int, body []byte, err error) *http.Client {
+	return &http.Client{
+		Transport: staticResponseRoundTripper{
+			statusCode: statusCode,
+			body:       body,
+			err:        err,
+		},
+		CheckRedirect: http.DefaultClient.CheckRedirect,
+		Jar:           http.DefaultClient.Jar,
+		Timeout:       http.DefaultClient.Timeout,
+	}
+}
+
+type staticResponseRoundTripper struct {
+	statusCode int
+	body       []byte
+	err        error
+}
+
+func (rt staticResponseRoundTripper) RoundTrip(*http.Request) (*http.Response, error) {
+	if rt.err != nil {
+		return nil, rt.err
+	}
+
+	resp := &http.Response{
+		StatusCode: rt.statusCode,
+		Header:     make(http.Header),
+		Body:       ioutil.NopCloser(bytes.NewBuffer(rt.body)),
+	}
+
+	return resp, nil
 }
