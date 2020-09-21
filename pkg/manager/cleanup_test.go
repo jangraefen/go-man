@@ -45,3 +45,22 @@ func TestGoManager_Cleanup(t *testing.T) {
 
 	assert.NoError(t, sut.Cleanup())
 }
+
+func TestGoManager_Cleanup_WithInvalid(t *testing.T) {
+	unstableVersion := version.Must(version.NewVersion("1.11.0"))
+
+	tempDir := t.TempDir()
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{unstableVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
+	assert.NotNil(t, sut)
+
+	assert.Error(t, sut.Cleanup())
+}
