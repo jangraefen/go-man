@@ -27,8 +27,8 @@ func TestNewManager(t *testing.T) {
 	assert.Empty(t, manager.InstalledVersions)
 	assert.Nil(t, manager.SelectedVersion)
 
-	setupInstallation(t, rootDirectory, validVersion)
-	setupInstallation(t, rootDirectory, anotherValidVersion)
+	setupInstallation(t, rootDirectory, true, validVersion)
+	setupInstallation(t, rootDirectory, true, anotherValidVersion)
 	assert.NoError(t, link(
 		filepath.Join(rootDirectory, "go1.15.2"),
 		filepath.Join(rootDirectory, selectedDirectoryName),
@@ -49,7 +49,7 @@ func TestNewManager(t *testing.T) {
 	assert.Nil(t, manager)
 }
 
-func setupInstallation(t *testing.T, rootDirectory string, goVersion *version.Version) {
+func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion *version.Version) {
 	t.Helper()
 
 	folderPath := filepath.Join(rootDirectory, fmt.Sprintf("go%s", goVersion))
@@ -80,7 +80,8 @@ func setupInstallation(t *testing.T, rootDirectory string, goVersion *version.Ve
 		GOVersion string
 		GOOS      string
 		GOArch    string
-	}{goVersion.String(), runtime.GOOS, runtime.GOARCH}
+		Valid     bool
+	}{goVersion.String(), runtime.GOOS, runtime.GOARCH, valid}
 
 	if err := tmpl.Execute(file, parameters); err != nil {
 		assert.FailNow(t, "Could not render go binary template", err)

@@ -19,8 +19,8 @@ func TestGoManager_UninstallAll(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, validVersion)
-	setupInstallation(t, tempDir, anotherValidVersion)
+	setupInstallation(t, tempDir, true, validVersion)
+	setupInstallation(t, tempDir, true, anotherValidVersion)
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -47,7 +47,7 @@ func TestGoManager_Uninstall(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, validVersion)
+	setupInstallation(t, tempDir, true, validVersion)
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -72,7 +72,7 @@ func TestGoManager_Uninstall(t *testing.T) {
 	assert.False(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	sut.InstalledVersions = version.Collection{validVersion}
-	setupInstallation(t, tempDir, validVersion)
+	setupInstallation(t, tempDir, true, validVersion)
 
 	assert.NoError(t, sut.Uninstall(validVersion))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))

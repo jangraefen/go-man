@@ -24,8 +24,8 @@ func TestGoManager_Cleanup(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, stableVersion)
-	setupInstallation(t, tempDir, unstableVersion)
+	setupInstallation(t, tempDir, true, stableVersion)
+	setupInstallation(t, tempDir, true, unstableVersion)
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,

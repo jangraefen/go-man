@@ -20,8 +20,8 @@ func TestGoManager_Select(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, validVersion)
-	setupInstallation(t, tempDir, anotherValidVersion)
+	setupInstallation(t, tempDir, true, validVersion)
+	setupInstallation(t, tempDir, true, anotherValidVersion)
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -58,7 +58,7 @@ func TestGoManager_Unselect(t *testing.T) {
 	sdkPath := filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion))
 	selectedPath := filepath.Join(tempDir, selectedDirectoryName)
 
-	setupInstallation(t, tempDir, validVersion)
+	setupInstallation(t, tempDir, true, validVersion)
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
