@@ -28,8 +28,6 @@ func (m *GoManager) UninstallAll() error {
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Uninstall(versionNumber *version.Version) error {
 	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
-	versionArchive := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s*", versionNumber))
-
 	if versionNumber.Equal(m.SelectedVersion) {
 		if err := m.Unselect(); err != nil {
 			return err
@@ -44,10 +42,7 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) error {
 	if !utils.PathExists(versionDirectory) {
 		return fmt.Errorf("no directory %s to uninstall from", versionDirectory)
 	}
-	if err := deleteVersionDirectory(versionDirectory); err != nil {
-		return err
-	}
-	if err := deleteVersionArchive(versionArchive); err != nil {
+	if err := os.RemoveAll(versionDirectory); err != nil {
 		return err
 	}
 
@@ -59,23 +54,4 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) error {
 	}
 
 	return nil
-}
-
-func deleteVersionArchive(archivePattern string) error {
-	matches, err := filepath.Glob(archivePattern)
-	if err != nil {
-		return err
-	}
-
-	for _, match := range matches {
-		if err := os.Remove(match); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func deleteVersionDirectory(directory string) error {
-	return os.RemoveAll(directory)
 }

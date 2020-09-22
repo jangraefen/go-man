@@ -36,9 +36,7 @@ func TestGoManager_UninstallAll(t *testing.T) {
 
 	assert.NoError(t, sut.UninstallAll())
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
-	assert.NoFileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-windows-amd64.zip", validVersion)))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
-	assert.NoFileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-windows-amd64.zip", anotherValidVersion)))
 
 	assert.NoError(t, sut.UninstallAll())
 }
@@ -71,7 +69,6 @@ func TestGoManager_Uninstall(t *testing.T) {
 
 	assert.NoError(t, sut.Uninstall(validVersion))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
-	assert.NoFileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-windows-amd64.zip", validVersion)))
 	assert.False(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	sut.InstalledVersions = version.Collection{validVersion}
@@ -79,7 +76,6 @@ func TestGoManager_Uninstall(t *testing.T) {
 
 	assert.NoError(t, sut.Uninstall(validVersion))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
-	assert.NoFileExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s-windows-amd64.zip", validVersion)))
 
 	assert.Error(t, sut.Uninstall(validVersion))
 }
@@ -88,17 +84,9 @@ func setupInstallation(t *testing.T, rootDirectory string, goVersion *version.Ve
 	t.Helper()
 
 	folderPath := filepath.Join(rootDirectory, fmt.Sprintf("go%s", goVersion))
-	archivePath := filepath.Join(rootDirectory, fmt.Sprintf("go%s-windows-amd64.zip", goVersion))
 
 	if err := os.MkdirAll(folderPath, 0700); err != nil {
-		assert.FailNowf(t, "Could not create installation directory %s", archivePath)
+		assert.FailNowf(t, "Could not create installation directory %s", folderPath)
 		return
 	}
-
-	file, err := os.Create(archivePath)
-	if err != nil {
-		assert.FailNowf(t, "Could not touch file %s", archivePath)
-		return
-	}
-	file.Close()
 }
