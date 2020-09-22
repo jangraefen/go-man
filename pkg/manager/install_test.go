@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-version"
+	copy2 "github.com/otiai10/copy"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/NoizeMe/go-man/pkg/releases"
@@ -79,4 +80,68 @@ func TestGoManager_Install_WithHTTPError(t *testing.T) {
 
 	utils.Client = utils.StaticResponseClient(0, nil, errors.New("failure"))
 	assert.Error(t, sut.Install(validVersion, runtime.GOOS, runtime.GOARCH, releases.IncludeAll))
+}
+
+func TestDownloadRelease(t *testing.T) {
+	t.Cleanup(func() {
+		utils.Client = http.DefaultClient
+	})
+
+	file := releases.ReleaseFile{Filename: "go1.15.2.src.tar.gz"}
+	destinationFile := filepath.Join(t.TempDir(), "download.rel")
+
+	assert.NoError(t, downloadRelease(file, destinationFile))
+	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
+	assert.Error(t, downloadRelease(file, destinationFile))
+	utils.Client = utils.StaticResponseClient(0, nil, errors.New("failure"))
+	assert.Error(t, downloadRelease(file, destinationFile))
+}
+
+func TestVerifyDownload(t *testing.T) {
+	file := releases.ReleaseFile{Filename: "go1.15.2.src.tar.gz", Sha256: "28bf9d0bcde251011caae230a4a05d917b172ea203f2a62f2c2f9533589d4b4d"}
+	destinationFile := filepath.Join(t.TempDir(), "download.rel")
+
+	assert.NoError(t, downloadRelease(file, destinationFile))
+	assert.NoError(t, verifyDownload(file, destinationFile))
+
+	utils.TryRemove(destinationFile)
+
+	assert.Error(t, verifyDownload(file, destinationFile))
+
+	f, err := os.Create(destinationFile)
+	assert.NoError(t, err)
+	_ = f.Close()
+
+	assert.Error(t, verifyDownload(file, destinationFile))
+}
+
+func TestExtractRelease(t *testing.T) {
+	file := releases.ReleaseFile{Filename: "go1.15.2.src.tar.gz", Sha256: "28bf9d0bcde251011caae230a4a05d917b172ea203f2a62f2c2f9533589d4b4d"}
+	destinationFile := filepath.Join(t.TempDir(), "download.tar.gz")
+	destinationDirectory := filepath.Join(t.TempDir(), "extracted")
+
+	assert.NoError(t, downloadRelease(file, destinationFile))
+
+	assert.NoError(t, extractRelease(destinationFile, destinationDirectory))
+	assert.Error(t, extractRelease(destinationFile, destinationDirectory))
+
+	utils.TryRemove(destinationFile)
+	assert.Error(t, extractRelease(destinationFile, destinationDirectory))
+}
+
+func TestVerifyRelease(t *testing.T) {
+	destinationDirectory := filepath.Join(t.TempDir(), "go-installation")
+	assert.NoError(t, copy2.Copy(
+		filepath.Join(runtime.GOROOT(), "bin", "go"),
+		filepath.Join(destinationDirectory, "go", "bin", "go"),
+	))
+
+	validVersion := version.Must(version.NewVersion("1.15.2"))
+	invalidVersion := version.Must(version.NewVersion("42.1337.3"))
+
+	assert.NoError(t, verifyRelease(validVersion, destinationDirectory))
+	assert.Error(t, verifyRelease(invalidVersion, destinationDirectory))
+
+	utils.TryRemove(destinationDirectory)
+	assert.Error(t, verifyRelease(validVersion, destinationDirectory))
 }
