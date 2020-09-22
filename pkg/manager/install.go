@@ -51,6 +51,9 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 		return err
 	}
 
+	installTask.Printf("Removing archive: %s", destinationFile)
+	utils.TryRemove(destinationFile)
+
 	installTask.Printf("Verifying installation: %s", destinationDirectory)
 	if err := verifyRelease(versionNumber, destinationDirectory); err != nil {
 		return err
