@@ -79,14 +79,3 @@ func TestGoManager_Uninstall(t *testing.T) {
 
 	assert.Error(t, sut.Uninstall(validVersion))
 }
-
-func setupInstallation(t *testing.T, rootDirectory string, goVersion *version.Version) {
-	t.Helper()
-
-	folderPath := filepath.Join(rootDirectory, fmt.Sprintf("go%s", goVersion))
-
-	if err := os.MkdirAll(folderPath, 0700); err != nil {
-		assert.FailNowf(t, "Could not create installation directory %s", folderPath)
-		return
-	}
-}
