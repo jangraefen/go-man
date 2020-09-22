@@ -49,7 +49,7 @@ func TestNewManager(t *testing.T) {
 	assert.Nil(t, manager)
 }
 
-func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion *version.Version) {
+func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion fmt.Stringer) {
 	t.Helper()
 
 	folderPath := filepath.Join(rootDirectory, fmt.Sprintf("go%s", goVersion))
