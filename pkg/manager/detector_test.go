@@ -1,8 +1,8 @@
 package manager
 
 import (
-	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,7 +13,7 @@ func TestDetectGoVersion(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, version)
 
-	version, err = detectGoVersion(os.Getenv("GOROOT"))
+	version, err = detectGoVersion(runtime.GOROOT())
 	assert.NoError(t, err)
 	assert.NotNil(t, version)
 }

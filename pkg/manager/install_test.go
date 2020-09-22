@@ -91,8 +91,11 @@ func TestDownloadRelease(t *testing.T) {
 	destinationFile := filepath.Join(t.TempDir(), "download.rel")
 
 	assert.NoError(t, downloadRelease(file, destinationFile))
+	assert.Error(t, downloadRelease(file, destinationFile))
+
 	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
 	assert.Error(t, downloadRelease(file, destinationFile))
+
 	utils.Client = utils.StaticResponseClient(0, nil, errors.New("failure"))
 	assert.Error(t, downloadRelease(file, destinationFile))
 }
@@ -132,8 +135,8 @@ func TestExtractRelease(t *testing.T) {
 func TestVerifyRelease(t *testing.T) {
 	destinationDirectory := filepath.Join(t.TempDir(), "go-installation")
 	assert.NoError(t, copy2.Copy(
-		filepath.Join(runtime.GOROOT(), "bin", "go"),
-		filepath.Join(destinationDirectory, "go", "bin", "go"),
+		filepath.Join(runtime.GOROOT(), "bin", getExecutableName("go")),
+		filepath.Join(destinationDirectory, "go", "bin", getExecutableName("go")),
 	))
 
 	validVersion := version.Must(version.NewVersion("1.15.2"))
@@ -144,4 +147,12 @@ func TestVerifyRelease(t *testing.T) {
 
 	utils.TryRemove(destinationDirectory)
 	assert.Error(t, verifyRelease(validVersion, destinationDirectory))
+}
+
+func getExecutableName(name string) string {
+	if runtime.GOOS == "windows" {
+		return name + ".exe"
+	}
+
+	return name
 }
