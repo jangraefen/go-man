@@ -1,6 +1,6 @@
 @echo off
-{{- if .Valid -}}
+{{- if .Valid}}
 echo "go version go{{.GOVersion}} {{.GOOS}}/{{.GOArch}}"
-{{-else-}}
+{{- else}}
 echo "invalid go version output"
-{{-endif-}}
+{{- endif -}}
