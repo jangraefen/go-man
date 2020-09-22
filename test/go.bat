@@ -3,4 +3,4 @@
 echo "go version go{{.GOVersion}} {{.GOOS}}/{{.GOArch}}"
 {{- else}}
 echo "invalid go version output"
-{{- endif -}}
+{{- end -}}
