@@ -15,14 +15,14 @@ builds:
       - darwin
 
 archives:
-  - replacements:
-      darwin: macos
+  - name_template: "goman{{ .Version }}.{{ .Os }}-{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
 
 source:
   enabled: true
+  name_template: "goman{{ .Version }}.src"
 
 milestones:
   - close: true
