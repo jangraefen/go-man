@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -46,7 +45,6 @@ func NewManager(task *tasks.Task, rootDirectory string) (*GoManager, error) {
 		if fileInfo.IsDir() || fileInfo.Mode()&os.ModeSymlink != 0 {
 			detectedVersion, err := detectGoVersion(filepath.Join(rootDirectory, fileInfo.Name(), "go"))
 			if err != nil {
-				fmt.Println("ERROR WHILE DETECTING:", err)
 				continue
 			}
 
