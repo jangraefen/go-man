@@ -20,6 +20,7 @@ func TestNewManager(t *testing.T) {
 
 	validVersion := version.Must(version.NewVersion("1.15.2"))
 	anotherValidVersion := version.Must(version.NewVersion("1.14.9"))
+	invalidVersion := version.Must(version.NewVersion("1.11.0"))
 
 	manager, err := NewManager(task, rootDirectory)
 	assert.NoError(t, err)
@@ -29,6 +30,7 @@ func TestNewManager(t *testing.T) {
 
 	setupInstallation(t, rootDirectory, true, validVersion)
 	setupInstallation(t, rootDirectory, true, anotherValidVersion)
+	setupInstallation(t, rootDirectory, false, invalidVersion)
 	assert.NoError(t, link(
 		filepath.Join(rootDirectory, "go1.15.2"),
 		filepath.Join(rootDirectory, selectedDirectoryName),
@@ -40,6 +42,7 @@ func TestNewManager(t *testing.T) {
 	assert.Len(t, manager.InstalledVersions, 2)
 	assert.Contains(t, manager.InstalledVersions, validVersion)
 	assert.Contains(t, manager.InstalledVersions, anotherValidVersion)
+	assert.NotContains(t, manager.InstalledVersions, invalidVersion)
 	assert.True(t, manager.SelectedVersion.Equal(validVersion))
 
 	rootDirectory = filepath.Join("not", "existent", "directory")
