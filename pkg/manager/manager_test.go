@@ -90,7 +90,7 @@ func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion
 }
 
 func getExecutableTemplateTarget(name string) string {
-	if runtime.GOOS == "windows" { //nolint:gosec
+	if runtime.GOOS == "windows" { //nolint:goconst
 		return name + ".bat"
 	}
 
