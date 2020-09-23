@@ -13,6 +13,13 @@ import (
 )
 
 func link(sourceDirectory, targetDirectory string) error {
+	if !utils.PathExists(sourceDirectory) {
+		return fmt.Errorf("%s: no such file or directory", sourceDirectory)
+	}
+	if utils.PathExists(targetDirectory) {
+		return fmt.Errorf("%s: file or directory already exists", sourceDirectory)
+	}
+
 	if admin, adminErr := hasAdmin(); admin && adminErr == nil {
 		return os.Symlink(sourceDirectory, targetDirectory)
 	}

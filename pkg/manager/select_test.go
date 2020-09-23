@@ -51,6 +51,29 @@ func TestGoManager_Select(t *testing.T) {
 	assert.True(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 }
 
+func TestGoManager_Select_WithExistingSelectionDir(t *testing.T) {
+	invalidVersion := version.Must(version.NewVersion("1.14.9"))
+
+	tempDir := t.TempDir()
+
+	setupInstallation(t, tempDir, true, invalidVersion)
+
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{invalidVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
+	assert.NotNil(t, sut)
+
+	assert.NoError(t, os.MkdirAll(filepath.Join(tempDir, selectedDirectoryName), 0700))
+	assert.Error(t, sut.Select(invalidVersion))
+}
+
 func TestGoManager_Select_WithFailingUnselect(t *testing.T) {
 	validVersion := version.Must(version.NewVersion("1.15.2"))
 	invalidVersion := version.Must(version.NewVersion("1.14.9"))
