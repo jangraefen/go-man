@@ -24,6 +24,9 @@ source:
   enabled: true
   name_template: "goman{{ .Version }}.src"
 
+checksum:
+  name_template: "goman{{ .Version }}.checksums.txt"
+
 milestones:
   - close: true
 
