@@ -1,0 +1,35 @@
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - id: "goman-cli"
+    main: ./cmd/goman/main.go
+    binary: goman
+    env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    goos:
+      - linux
+      - windows
+      - darwin
+
+archives:
+  - replacements:
+      darwin: macos
+    format_overrides:
+      - goos: windows
+        format: zip
+
+source:
+  enabled: true
+
+milestones:
+  - close: true
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
