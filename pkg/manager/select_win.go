@@ -3,10 +3,13 @@
 package manager
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/otiai10/copy"
 	"golang.org/x/sys/windows"
+
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 func link(sourceDirectory, targetDirectory string) error {
@@ -24,6 +27,10 @@ func link(sourceDirectory, targetDirectory string) error {
 }
 
 func unlink(directory string) error {
+	if !utils.PathExists(directory) {
+		return fmt.Errorf("%s: no such file or directory", directory)
+	}
+
 	return os.RemoveAll(directory)
 }
 
