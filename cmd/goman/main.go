@@ -11,6 +11,7 @@ import (
 	"github.com/NoizeMe/go-man/pkg/manager"
 	"github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 var (
@@ -73,13 +74,13 @@ func main() {
 		Error:         os.Stderr,
 	}
 
+	if !utils.PathExists(gomanRoot()) {
+		task.DieOnError(os.MkdirAll(gomanRoot(), 0755))
+	}
+
 	// Parse the command line arguments. Any errors will get caught be the library and will cause the usage to be printed.
 	// The program will exit afterwards.
 	_ = root.Parse()
-
-	if stat, err := os.Stat(gomanRoot()); err != nil && os.IsNotExist(err) || !stat.IsDir() {
-		task.DieOnError(os.MkdirAll(gomanRoot(), 0755))
-	}
 
 	switch {
 	case list.Parsed():
