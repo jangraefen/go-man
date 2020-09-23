@@ -148,3 +148,11 @@ func TestVerifyRelease(t *testing.T) {
 	utils.TryRemove(destinationDirectory)
 	assert.Error(t, verifyRelease(validVersion, destinationDirectory))
 }
+
+func getExecutableName(name string) string {
+	if runtime.GOOS == "windows" { //nolint:goconst
+		return name + ".exe"
+	}
+
+	return name
+}

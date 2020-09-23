@@ -1,6 +1,6 @@
 @echo off
 {{- if .Valid}}
-echo "go version go{{.GOVersion}} {{.GOOS}}/{{.GOArch}}"
+echo go version go{{.GOVersion}} {{.GOOS}}/{{.GOArch}}
 {{- else}}
-echo "invalid go version output"
+echo invalid go version output
 {{- end -}}

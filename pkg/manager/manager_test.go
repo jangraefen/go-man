@@ -66,7 +66,7 @@ func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion
 		return
 	}
 
-	executablePath := filepath.Join(binPath, getExecutableName("go"))
+	executablePath := filepath.Join(binPath, getExecutableTemplateTarget("go"))
 	file, err := os.OpenFile(executablePath, os.O_WRONLY|os.O_CREATE, 0744)
 	if err != nil {
 		assert.FailNow(t, "Could not create go binary file", err)
@@ -89,9 +89,9 @@ func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion
 	}
 }
 
-func getExecutableName(name string) string {
-	if runtime.GOOS == "windows" {
-		return name + ".exe"
+func getExecutableTemplateTarget(name string) string {
+	if runtime.GOOS == "windows" { //nolint:goconst
+		return name + ".bat"
 	}
 
 	return name
