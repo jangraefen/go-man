@@ -20,6 +20,8 @@ func detectGoVersion(sdkDirectory string) (*version.Version, error) {
 		return nil, err
 	}
 
+	fmt.Println("OUTPUT OF DETECTION IS:", "'", string(output), "'")
+
 	var scannedVersion, osAndArch string
 	matches, err := fmt.Fscanf(bytes.NewReader(output), "go version %s %s\n", &scannedVersion, &osAndArch)
 	if err != nil {
