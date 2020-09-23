@@ -36,8 +36,6 @@ jobs:
         go-version: [ 1.15.x ]
         platform: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.platform }}
-    container:
-      options: --user 1001
     needs: [ lint ]
     steps:
       - name: Install Go
