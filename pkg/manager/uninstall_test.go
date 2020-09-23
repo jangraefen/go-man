@@ -41,6 +41,29 @@ func TestGoManager_UninstallAll(t *testing.T) {
 	assert.NoError(t, sut.UninstallAll())
 }
 
+func TestGoManager_UninstallAll_WithBrokenInstallation(t *testing.T) {
+	validVersion := version.Must(version.NewVersion("1.15.2"))
+	invalidVersion := version.Must(version.NewVersion("1.14.0"))
+
+	tempDir := t.TempDir()
+
+	setupInstallation(t, tempDir, true, validVersion)
+
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{invalidVersion, validVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
+	assert.NotNil(t, sut)
+
+	assert.Error(t, sut.UninstallAll())
+}
+
 func TestGoManager_Uninstall(t *testing.T) {
 	invalidVersion := version.Must(version.NewVersion("42.1337.3"))
 	validVersion := version.Must(version.NewVersion("1.15.2"))
