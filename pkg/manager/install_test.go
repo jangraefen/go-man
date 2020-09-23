@@ -150,7 +150,7 @@ func TestVerifyRelease(t *testing.T) {
 }
 
 func getExecutableName(name string) string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" { //nolint:gosec
 		return name + ".exe"
 	}
 

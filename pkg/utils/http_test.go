@@ -103,7 +103,7 @@ func TestStaticResponseClient(t *testing.T) {
 }
 
 func getNoPermissionDirectory(fileName string) string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" { //nolint:gosec
 		return filepath.Join(filepath.VolumeName("/"), fileName)
 	}
 
