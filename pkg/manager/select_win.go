@@ -21,12 +21,6 @@ func link(sourceDirectory, targetDirectory string) error {
 		return os.Symlink(sourceDirectory, targetDirectory)
 	}
 
-	if _, statErr := os.Stat(targetDirectory); statErr != nil && os.IsNotExist(statErr) {
-		if removeErr := os.RemoveAll(targetDirectory); removeErr != nil {
-			return statErr
-		}
-	}
-
 	return copy.Copy(sourceDirectory, targetDirectory)
 }
 
