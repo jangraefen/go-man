@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/fileutil"
 )
 
 // UninstallAll is a function that removes all current installations of the Go SDK.
@@ -39,7 +39,7 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) error {
 	uninstallTask := m.task.Step()
 	uninstallTask.Printf("Deleting SDK: %s", versionDirectory)
 
-	if !utils.PathExists(versionDirectory) {
+	if !fileutil.PathExists(versionDirectory) {
 		return fmt.Errorf("no directory %s to uninstall from", versionDirectory)
 	}
 	if err := os.RemoveAll(versionDirectory); err != nil {

@@ -1,4 +1,4 @@
-package utils
+package archiveutil
 
 import (
 	"path/filepath"
@@ -13,19 +13,19 @@ func TestExtractArchive(t *testing.T) {
 	missingDirectory := filepath.Join(t.TempDir(), "missing")
 	destinationDirectory := filepath.Join(t.TempDir(), "extracted")
 
-	extracted, err := ExtractArchive("MISSING_FILE.zip", missingDirectory, false)
+	extracted, err := Extract("MISSING_FILE.zip", missingDirectory, false)
 	assert.Error(t, err)
 	assert.True(t, extracted)
 
-	extracted, err = ExtractArchive(archiveFile, destinationDirectory, false)
+	extracted, err = Extract(archiveFile, destinationDirectory, false)
 	assert.NoError(t, err)
 	assert.True(t, extracted)
 
-	extracted, err = ExtractArchive(archiveFile, destinationDirectory, false)
+	extracted, err = Extract(archiveFile, destinationDirectory, false)
 	assert.NoError(t, err)
 	assert.False(t, extracted)
 
-	extracted, err = ExtractArchive(archiveFile, destinationDirectory, true)
+	extracted, err = Extract(archiveFile, destinationDirectory, true)
 	assert.NoError(t, err)
 	assert.True(t, extracted)
 }

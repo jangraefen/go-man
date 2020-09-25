@@ -1,4 +1,4 @@
-package utils
+package httputil
 
 import (
 	"bytes"
@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/NoizeMe/go-man/internal/fileutil"
 )
 
 var (
@@ -41,11 +43,11 @@ func GetJSON(url string, result interface{}) error {
 // GetFile downloads a given URL into a destination file.
 // If the flag overwrite is set to false, the destination file will not be overwritten and nothing will be downloaded.
 func GetFile(url, destinationFile string, overwrite bool) (bool, error) {
-	if PathExists(destinationFile) && !overwrite {
+	if fileutil.PathExists(destinationFile) && !overwrite {
 		return false, nil
 	}
 
-	TryRemove(destinationFile)
+	fileutil.TryRemove(destinationFile)
 
 	response, err := Client.Get(url) //nolint:gosec
 	if err != nil {

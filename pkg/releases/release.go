@@ -16,9 +16,9 @@ type FileKind string
 const (
 	fileURLTemplate = "https://golang.org/dl/%s"
 
-	// SourceFile describes the file kind source archives of the Golang SDK release.
+	// SourceFile describes the file kind source archiveutil of the Golang SDK release.
 	SourceFile = FileKind("source")
-	// ArchiveFile describes the file kind binary distribution archives of the Golang SDK release.
+	// ArchiveFile describes the file kind binary distribution archiveutil of the Golang SDK release.
 	ArchiveFile = FileKind("archive")
 	// InstallerFile describes the file kind installer executable of the Golang SDK release.
 	InstallerFile = FileKind("installer")

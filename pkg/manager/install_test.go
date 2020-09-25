@@ -13,14 +13,15 @@ import (
 	copy2 "github.com/otiai10/copy"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/fileutil"
+	"github.com/NoizeMe/go-man/internal/httputil"
 	"github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/NoizeMe/go-man/pkg/tasks"
 )
 
 func TestGoManager_Install(t *testing.T) {
 	t.Cleanup(func() {
-		utils.Client = http.DefaultClient
+		httputil.Client = http.DefaultClient
 	})
 
 	validVersion := version.Must(version.NewVersion("1.15.2"))
@@ -62,7 +63,7 @@ func TestGoManager_Install_WithInvalidTarget(t *testing.T) {
 
 func TestGoManager_Install_WithHTTPError(t *testing.T) {
 	t.Cleanup(func() {
-		utils.Client = http.DefaultClient
+		httputil.Client = http.DefaultClient
 	})
 
 	validVersion := version.Must(version.NewVersion("1.15.2"))
@@ -75,16 +76,16 @@ func TestGoManager_Install_WithHTTPError(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, sut)
 
-	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
+	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
 	assert.Error(t, sut.Install(validVersion, runtime.GOOS, runtime.GOARCH, releases.IncludeAll))
 
-	utils.Client = utils.StaticResponseClient(0, nil, errors.New("failure"))
+	httputil.Client = httputil.StaticResponseClient(0, nil, errors.New("failure"))
 	assert.Error(t, sut.Install(validVersion, runtime.GOOS, runtime.GOARCH, releases.IncludeAll))
 }
 
 func TestDownloadRelease(t *testing.T) {
 	t.Cleanup(func() {
-		utils.Client = http.DefaultClient
+		httputil.Client = http.DefaultClient
 	})
 
 	file := releases.ReleaseFile{Filename: "go1.15.2.src.tar.gz"}
@@ -93,10 +94,10 @@ func TestDownloadRelease(t *testing.T) {
 	assert.NoError(t, downloadRelease(file, destinationFile))
 	assert.Error(t, downloadRelease(file, destinationFile))
 
-	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
+	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
 	assert.Error(t, downloadRelease(file, destinationFile))
 
-	utils.Client = utils.StaticResponseClient(0, nil, errors.New("failure"))
+	httputil.Client = httputil.StaticResponseClient(0, nil, errors.New("failure"))
 	assert.Error(t, downloadRelease(file, destinationFile))
 }
 
@@ -107,7 +108,7 @@ func TestVerifyDownload(t *testing.T) {
 	assert.NoError(t, downloadRelease(file, destinationFile))
 	assert.NoError(t, verifyDownload(file, destinationFile))
 
-	utils.TryRemove(destinationFile)
+	fileutil.TryRemove(destinationFile)
 
 	assert.Error(t, verifyDownload(file, destinationFile))
 
@@ -128,7 +129,7 @@ func TestExtractRelease(t *testing.T) {
 	assert.NoError(t, extractRelease(destinationFile, destinationDirectory))
 	assert.Error(t, extractRelease(destinationFile, destinationDirectory))
 
-	utils.TryRemove(destinationFile)
+	fileutil.TryRemove(destinationFile)
 	assert.Error(t, extractRelease(destinationFile, destinationDirectory))
 }
 
@@ -145,7 +146,7 @@ func TestVerifyRelease(t *testing.T) {
 	assert.NoError(t, verifyRelease(validVersion, destinationDirectory))
 	assert.Error(t, verifyRelease(invalidVersion, destinationDirectory))
 
-	utils.TryRemove(destinationDirectory)
+	fileutil.TryRemove(destinationDirectory)
 	assert.Error(t, verifyRelease(validVersion, destinationDirectory))
 }
 

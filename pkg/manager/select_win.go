@@ -9,11 +9,11 @@ import (
 	"github.com/otiai10/copy"
 	"golang.org/x/sys/windows"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/fileutil"
 )
 
 func link(sourceDirectory, targetDirectory string) error {
-	if utils.PathExists(targetDirectory) {
+	if fileutil.PathExists(targetDirectory) {
 		return fmt.Errorf("%s: file or directory already exists", sourceDirectory)
 	}
 
@@ -25,7 +25,7 @@ func link(sourceDirectory, targetDirectory string) error {
 }
 
 func unlink(directory string) error {
-	if !utils.PathExists(directory) {
+	if !fileutil.PathExists(directory) {
 		return fmt.Errorf("%s: no such file or directory", directory)
 	}
 

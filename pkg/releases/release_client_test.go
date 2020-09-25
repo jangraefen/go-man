@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/httputil"
 )
 
 func TestSelectReleaseType(t *testing.T) {
@@ -18,7 +18,7 @@ func TestSelectReleaseType(t *testing.T) {
 
 func TestListAll(t *testing.T) {
 	t.Cleanup(func() {
-		utils.Client = http.DefaultClient
+		httputil.Client = http.DefaultClient
 	})
 
 	stableReleases, err := ListAll(IncludeStable)
@@ -31,13 +31,13 @@ func TestListAll(t *testing.T) {
 
 	assert.Greater(t, len(allReleases), len(stableReleases))
 
-	utils.Client = utils.StaticResponseClient(500, nil, errors.New("failure"))
+	httputil.Client = httputil.StaticResponseClient(500, nil, errors.New("failure"))
 
 	stableReleases, err = ListAll(IncludeStable)
 	assert.Error(t, err)
 	assert.Empty(t, stableReleases)
 
-	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
+	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
 
 	stableReleases, err = ListAll(IncludeStable)
 	assert.Error(t, err)
@@ -46,7 +46,7 @@ func TestListAll(t *testing.T) {
 
 func TestGetLatest(t *testing.T) {
 	t.Cleanup(func() {
-		utils.Client = http.DefaultClient
+		httputil.Client = http.DefaultClient
 	})
 
 	latestStable, err := GetLatest(IncludeStable)
@@ -57,13 +57,13 @@ func TestGetLatest(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, latestAll)
 
-	utils.Client = utils.StaticResponseClient(500, nil, errors.New("failure"))
+	httputil.Client = httputil.StaticResponseClient(500, nil, errors.New("failure"))
 
 	latestStable, err = GetLatest(IncludeStable)
 	assert.Error(t, err)
 	assert.Nil(t, latestStable)
 
-	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
+	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
 
 	latestStable, err = GetLatest(IncludeStable)
 	assert.Error(t, err)
@@ -72,7 +72,7 @@ func TestGetLatest(t *testing.T) {
 
 func TestGetForVersion(t *testing.T) {
 	t.Cleanup(func() {
-		utils.Client = http.DefaultClient
+		httputil.Client = http.DefaultClient
 	})
 
 	release, exists, err := GetForVersion(IncludeAll, version.Must(version.NewVersion("1.12.16")))
@@ -86,14 +86,14 @@ func TestGetForVersion(t *testing.T) {
 	assert.False(t, exists)
 	assert.Nil(t, release)
 
-	utils.Client = utils.StaticResponseClient(500, nil, errors.New("failure"))
+	httputil.Client = httputil.StaticResponseClient(500, nil, errors.New("failure"))
 
 	release, exists, err = GetForVersion(IncludeAll, version.Must(version.NewVersion("1.12.16")))
 	assert.Error(t, err)
 	assert.False(t, exists)
 	assert.Nil(t, release)
 
-	utils.Client = utils.StaticResponseClient(404, []byte("not found"), nil)
+	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
 
 	release, exists, err = GetForVersion(IncludeAll, version.Must(version.NewVersion("1.12.16")))
 	assert.Error(t, err)

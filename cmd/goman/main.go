@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/posener/cmd"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/fileutil"
 	"github.com/NoizeMe/go-man/pkg/manager"
 	"github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/NoizeMe/go-man/pkg/tasks"
@@ -77,7 +77,7 @@ func main() {
 		Error:         os.Stderr,
 	}
 
-	if !utils.PathExists(gomanRoot()) {
+	if !fileutil.PathExists(gomanRoot()) {
 		task.DieOnError(os.MkdirAll(gomanRoot(), 0755))
 	}
 

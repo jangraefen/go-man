@@ -7,7 +7,9 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/archiveutil"
+	"github.com/NoizeMe/go-man/internal/fileutil"
+	"github.com/NoizeMe/go-man/internal/httputil"
 	"github.com/NoizeMe/go-man/pkg/releases"
 )
 
@@ -52,7 +54,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	}
 
 	installTask.Printf("Removing archive: %s", destinationFile)
-	utils.TryRemove(destinationFile)
+	fileutil.TryRemove(destinationFile)
 
 	installTask.Printf("Verifying installation: %s", destinationDirectory)
 	if err := verifyRelease(versionNumber, destinationDirectory); err != nil {
@@ -66,7 +68,7 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 }
 
 func downloadRelease(file releases.ReleaseFile, destinationFile string) error {
-	downloaded, err := utils.GetFile(file.GetURL(), destinationFile, false)
+	downloaded, err := httputil.GetFile(file.GetURL(), destinationFile, false)
 	if err != nil {
 		return err
 	}
@@ -90,7 +92,7 @@ func verifyDownload(file releases.ReleaseFile, destinationFile string) error {
 }
 
 func extractRelease(destinationFile string, destinationDirectory string) error {
-	extracted, err := utils.ExtractArchive(destinationFile, destinationDirectory, false)
+	extracted, err := archiveutil.Extract(destinationFile, destinationDirectory, false)
 	if err != nil {
 		return err
 	}

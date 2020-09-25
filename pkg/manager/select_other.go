@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/fileutil"
 )
 
 func link(sourceDirectory, targetDirectory string) error {
-	if utils.PathExists(targetDirectory) {
+	if fileutil.PathExists(targetDirectory) {
 		return fmt.Errorf("%s: file or directory already exists", sourceDirectory)
 	}
 

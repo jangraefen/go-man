@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/fileutil"
 	"github.com/NoizeMe/go-man/pkg/tasks"
 )
 
@@ -38,17 +38,17 @@ func TestGoManager_Select(t *testing.T) {
 	assert.NoError(t, sut.Select(validVersion))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
-	assert.True(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
+	assert.True(t, fileutil.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	assert.NoError(t, sut.Select(anotherValidVersion))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
-	assert.True(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
+	assert.True(t, fileutil.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	assert.Error(t, sut.Select(invalidVersion))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
-	assert.True(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
+	assert.True(t, fileutil.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 }
 
 func TestGoManager_Select_WithLinkFailure(t *testing.T) {
@@ -120,13 +120,13 @@ func TestGoManager_Unselect(t *testing.T) {
 	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.Unselect())
-	assert.False(t, utils.PathExists(selectedPath))
+	assert.False(t, fileutil.PathExists(selectedPath))
 
 	assert.NoError(t, link(sdkPath, selectedPath))
 	sut.SelectedVersion = validVersion
 
 	assert.NoError(t, sut.Unselect())
-	assert.False(t, utils.PathExists(selectedPath))
+	assert.False(t, fileutil.PathExists(selectedPath))
 	assert.DirExists(t, sdkPath)
 }
 

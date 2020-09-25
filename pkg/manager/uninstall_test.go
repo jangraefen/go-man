@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/NoizeMe/go-man/internal/utils"
+	"github.com/NoizeMe/go-man/internal/fileutil"
 	"github.com/NoizeMe/go-man/pkg/tasks"
 )
 
@@ -92,7 +92,7 @@ func TestGoManager_Uninstall(t *testing.T) {
 
 	assert.NoError(t, sut.Uninstall(validVersion))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
-	assert.False(t, utils.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
+	assert.False(t, fileutil.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	sut.InstalledVersions = version.Collection{validVersion}
 	setupInstallation(t, tempDir, true, validVersion)
