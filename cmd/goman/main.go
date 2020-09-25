@@ -15,7 +15,10 @@ import (
 )
 
 var (
-	root = cmd.New()
+	root = cmd.New(
+		cmd.OptName("goman"),
+		cmd.OptDetails("A manager for Go SDK installations."),
+	)
 
 	list    = root.SubCommand("list", "Lists all available releases of the Go SDK.")
 	listAll = list.Bool(
