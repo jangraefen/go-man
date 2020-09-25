@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/NoizeMe/go-man/pkg/utils"
+	"github.com/NoizeMe/go-man/internal/utils"
 )
 
 func TestSelectReleaseType(t *testing.T) {

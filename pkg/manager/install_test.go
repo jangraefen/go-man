@@ -13,9 +13,9 @@ import (
 	copy2 "github.com/otiai10/copy"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/NoizeMe/go-man/internal/utils"
 	"github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/NoizeMe/go-man/pkg/tasks"
-	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 func TestGoManager_Install(t *testing.T) {

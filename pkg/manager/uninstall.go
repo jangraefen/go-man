@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/pkg/utils"
+	"github.com/NoizeMe/go-man/internal/utils"
 )
 
 // UninstallAll is a function that removes all current installations of the Go SDK.

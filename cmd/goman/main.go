@@ -8,10 +8,10 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/posener/cmd"
 
+	"github.com/NoizeMe/go-man/internal/utils"
 	"github.com/NoizeMe/go-man/pkg/manager"
 	"github.com/NoizeMe/go-man/pkg/releases"
 	"github.com/NoizeMe/go-man/pkg/tasks"
-	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 var (

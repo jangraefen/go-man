@@ -9,8 +9,8 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/NoizeMe/go-man/internal/utils"
 	"github.com/NoizeMe/go-man/pkg/tasks"
-	"github.com/NoizeMe/go-man/pkg/utils"
 )
 
 func TestGoManager_UninstallAll(t *testing.T) {
