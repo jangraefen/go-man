@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	selectedDirectoryName = "go-selected"
+	selectedDirectoryName = "go-default"
 )
 
 // The GoManager is responsible for managing Go SDK installations.

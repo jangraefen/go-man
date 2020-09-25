@@ -59,13 +59,13 @@ var (
 		"The versions that should be removed.",
 	)
 
-	selectz        = root.SubCommand("select", "Selects the active installation of the Go SDK.")
+	selectz        = root.SubCommand("select", "Selects the default installation of the Go SDK.")
 	selectVersions = selectz.Args(
 		"[version]",
 		"The version that should be selected.",
 	)
 
-	unselect = root.SubCommand("unselect", "Unselects the active installation of the Go SDK.")
+	unselect = root.SubCommand("unselect", "Unselects the default installation of the Go SDK.")
 
 	cleanup = root.SubCommand("cleanup", "Removes all installations of the Go SDK that are not considered stable.")
 )
