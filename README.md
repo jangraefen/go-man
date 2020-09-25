@@ -2,7 +2,7 @@
 A manager for Go SDK installations.
 
 [![Build Status](https://img.shields.io/github/workflow/status/NoizeMe/go-man/Build?logo=GitHub)](https://github.com/NoizeMe/go-man/actions?query=workflow:Build)
-[![PkgGoDev](https://pkg.go.dev/badge/NoizeMe/go-man)](https://pkg.go.dev/NoizeMe/go-man)
+[![PkgGoDev](https://pkg.go.dev/badge/mod/github.com/NoizeMe/go-man)](https://pkg.go.dev/mod/github.com/NoizeMe/go-man)
 [![Coverage](https://img.shields.io/codecov/c/github/NoizeMe/go-man?logo=codecov)](https://codecov.io/gh/NoizeMe/go-man)
 [![Go Report Card](https://goreportcard.com/badge/github.com/NoizeMe/go-man)](https://goreportcard.com/report/github.com/NoizeMe/go-man)
 
