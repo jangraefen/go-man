@@ -24,8 +24,8 @@ const (
 // SelectReleaseType is a function that returns the release type that matches the input parameters best.
 // For convenience can be used to get the correct release type by describing what kind of releases are desired and the
 // correct release type is then selected by this function. By default IncludeStable is returned.
-func SelectReleaseType(all bool) ReleaseType {
-	if all {
+func SelectReleaseType(unstable bool) ReleaseType {
+	if unstable {
 		return IncludeAll
 	}
 

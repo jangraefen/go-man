@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/posener/cmd"
+	"github.com/posener/complete/v2/predict"
 
 	"github.com/NoizeMe/go-man/internal/fileutil"
 	"github.com/NoizeMe/go-man/pkg/manager"
@@ -17,57 +18,61 @@ import (
 var (
 	root = cmd.New(
 		cmd.OptName("goman"),
-		cmd.OptDetails("A manager for Go SDK installations."),
+		cmd.OptDetails("A manager for Go installations"),
 	)
 
-	list    = root.SubCommand("list", "Lists all available releases of the Go SDK.")
-	listAll = list.Bool(
-		"all",
+	list         = root.SubCommand("list", "Lists of all available Go releases")
+	listUnstable = list.Bool(
+		"unstable",
 		false,
-		"By passing this flag, non-stable releases are listed as well.",
+		"Unlocks the listing of unstable Go versions",
 	)
 
-	install    = root.SubCommand("install", "Installs one or more new versions of the Go SDK.")
-	installAll = install.Bool(
-		"all",
+	install         = root.SubCommand("install", "Installs one or more new Go releases")
+	installUnstable = install.Bool(
+		"unstable",
 		false,
-		"By passing this flag, non-stable releases are installable as well.",
+		"Unlocks the installation of unstable Go versions",
 	)
 	installOS = install.String(
 		"os",
 		runtime.GOOS,
-		"Defines the operating system for that the Go SDK will be downloaded.",
+		"Operating system for that Go will be installed",
+		predict.OptValues("freebsd", "darwin", "linux", "windows"),
+		predict.OptCheck(),
 	)
 	installArch = install.String(
 		"arch",
 		runtime.GOARCH,
-		"Defines the processor architecture for that Go SDK will be downloaded.",
+		"Processor architecture for that Go will be installed",
+		predict.OptValues("386", "amd64", "armv61", "ppc64le", "s390x"),
+		predict.OptCheck(),
 	)
 	installVersions = install.Args(
 		"[versions...]",
-		"Versions that should be installed. May be 'latest' or any version number.",
+		"Versions of Go that will be installed. 'latest' or any version number",
 	)
 
-	uninstall    = root.SubCommand("uninstall", "Uninstall an existing installation of the Go SDK.")
+	uninstall    = root.SubCommand("uninstall", "Uninstall an existing Go installation")
 	uninstallAll = uninstall.Bool(
 		"all",
 		false,
-		"If set, all installed versions will be removed.",
+		"If set, all installations of Go will be uninstalled",
 	)
 	uninstallVersions = uninstall.Args(
 		"[versions...]",
-		"The versions that should be removed.",
+		"The versions that should be uninstalled",
 	)
 
-	selectz        = root.SubCommand("select", "Selects the default installation of the Go SDK.")
+	selectz        = root.SubCommand("select", "Selects the default Go installation")
 	selectVersions = selectz.Args(
 		"[version]",
-		"The version that should be selected.",
+		"The version that should be selected",
 	)
 
-	unselect = root.SubCommand("unselect", "Unselects the default installation of the Go SDK.")
+	unselect = root.SubCommand("unselect", "Unselects the default Go installation")
 
-	cleanup = root.SubCommand("cleanup", "Removes all installations of the Go SDK that are not considered stable.")
+	cleanup = root.SubCommand("cleanup", "Removes all Go installations, that are not considered stable")
 )
 
 func main() {
@@ -87,9 +92,9 @@ func main() {
 
 	switch {
 	case list.Parsed():
-		handleList(task, *listAll)
+		handleList(task, *listUnstable)
 	case install.Parsed():
-		handleInstall(task, *installAll, *installOS, *installArch, *installVersions)
+		handleInstall(task, *installUnstable, *installOS, *installArch, *installVersions)
 	case uninstall.Parsed():
 		handleUninstall(task, *uninstallAll, *uninstallVersions)
 	case selectz.Parsed():
@@ -113,11 +118,11 @@ func handleList(task *tasks.Task, all bool) {
 	}
 }
 
-func handleInstall(task *tasks.Task, all bool, operatingSystem, arch string, versionNames []string) {
+func handleInstall(task *tasks.Task, unstable bool, operatingSystem, arch string, versionNames []string) {
 	task.DieIff(len(versionNames) == 0, "No versions given to install, skipping")
 
 	if len(versionNames) == 1 && versionNames[0] == "latest" {
-		latest, err := releases.GetLatest(releases.SelectReleaseType(all))
+		latest, err := releases.GetLatest(releases.SelectReleaseType(unstable))
 		task.DieOnError(err)
 
 		versionNames = []string{latest.GetVersionNumber().String()}
@@ -131,7 +136,7 @@ func handleInstall(task *tasks.Task, all bool, operatingSystem, arch string, ver
 
 		goManager, err := manager.NewManager(task, gomanRoot())
 		task.DieOnError(err)
-		task.DieOnError(goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(all)))
+		task.DieOnError(goManager.Install(parsedVersion, operatingSystem, arch, releases.SelectReleaseType(unstable)))
 	}
 }
 
