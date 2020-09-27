@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/NoizeMe/go-man/internal/fileutil"
 	"github.com/NoizeMe/go-man/pkg/tasks"
@@ -32,7 +33,6 @@ func TestGoManager_UninstallAll(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.NoError(t, sut.UninstallAll())
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
@@ -59,7 +59,6 @@ func TestGoManager_UninstallAll_WithBrokenInstallation(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.UninstallAll())
 }
@@ -82,8 +81,7 @@ func TestGoManager_Uninstall(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
-	assert.NoError(t, link(
+	require.NoError(t, link(
 		filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)),
 		filepath.Join(tempDir, selectedDirectoryName),
 	))

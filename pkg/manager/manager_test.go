@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/NoizeMe/go-man/pkg/tasks"
 )
@@ -31,7 +32,7 @@ func TestNewManager(t *testing.T) {
 	setupInstallation(t, rootDirectory, true, validVersion)
 	setupInstallation(t, rootDirectory, true, anotherValidVersion)
 	setupInstallation(t, rootDirectory, false, invalidVersion)
-	assert.NoError(t, link(
+	require.NoError(t, link(
 		filepath.Join(rootDirectory, "go1.15.2"),
 		filepath.Join(rootDirectory, selectedDirectoryName),
 	))
@@ -58,23 +59,15 @@ func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion
 	folderPath := filepath.Join(rootDirectory, fmt.Sprintf("go%s", goVersion))
 	binPath := filepath.Join(folderPath, "go", "bin")
 
-	if err := os.MkdirAll(binPath, 0700); err != nil {
-		assert.FailNow(t, "Could not create installation directory", folderPath)
-		return
-	}
+	require.NoError(t, os.MkdirAll(binPath, 0700), "Could not create installation directory", folderPath)
 
 	tmpl, err := template.New(getExecutableTemplateName(t)).ParseFiles(getExecutableTemplatePath(t))
-	if err != nil {
-		assert.FailNow(t, "Could not render go binary template", err)
-		return
-	}
+	require.NoError(t, err, "Could not render go binary template", err)
 
 	executablePath := filepath.Join(binPath, getExecutableTemplateTarget("go"))
 	file, err := os.OpenFile(executablePath, os.O_WRONLY|os.O_CREATE, 0744)
-	if err != nil {
-		assert.FailNow(t, "Could not create go binary file", err)
-		return
-	}
+	require.NoError(t, err, "Could not create go binary file", err)
+
 	defer func() {
 		_ = file.Close()
 	}()
@@ -86,10 +79,7 @@ func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion
 		Valid     bool
 	}{goVersion.String(), runtime.GOOS, runtime.GOARCH, valid}
 
-	if err := tmpl.Execute(file, parameters); err != nil {
-		assert.FailNow(t, "Could not render go binary template", err)
-		return
-	}
+	require.NoError(t, tmpl.Execute(file, parameters), "Could not render go binary template")
 }
 
 func getExecutableTemplateTarget(name string) string {

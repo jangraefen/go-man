@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/NoizeMe/go-man/internal/httputil"
 	"github.com/NoizeMe/go-man/pkg/releases"
@@ -17,7 +18,7 @@ import (
 
 func TestGoManager_Cleanup(t *testing.T) {
 	stableRelease, err := releases.GetLatest(releases.IncludeStable)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	stableVersion := stableRelease.GetVersionNumber()
 	unstableVersion := version.Must(version.NewVersion("1.11.0"))
@@ -37,7 +38,6 @@ func TestGoManager_Cleanup(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.NoError(t, sut.Cleanup())
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", stableVersion)))
@@ -60,7 +60,6 @@ func TestGoManager_Cleanup_WithInvalid(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.Cleanup())
 }
@@ -83,7 +82,6 @@ func TestGoManager_Cleanup_WithHTTPError(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
 

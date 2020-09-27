@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-version"
 	copy2 "github.com/otiai10/copy"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/NoizeMe/go-man/internal/fileutil"
 	"github.com/NoizeMe/go-man/internal/httputil"
@@ -34,8 +35,7 @@ func TestGoManager_Install(t *testing.T) {
 		Output:        os.Stdout,
 		Error:         os.Stderr,
 	}, tempDir)
-	assert.NoError(t, err)
-	assert.NotNil(t, sut)
+	require.NoError(t, err)
 
 	assert.Error(t, sut.Install(invalidVersion, runtime.GOOS, runtime.GOARCH, releases.IncludeAll))
 
@@ -54,8 +54,7 @@ func TestGoManager_Install_WithInvalidTarget(t *testing.T) {
 		Output:        os.Stdout,
 		Error:         os.Stderr,
 	}, tempDir)
-	assert.NoError(t, err)
-	assert.NotNil(t, sut)
+	require.NoError(t, err)
 
 	assert.Error(t, sut.Install(validVersion, "foobar", runtime.GOARCH, releases.IncludeAll))
 	assert.Error(t, sut.Install(validVersion, runtime.GOOS, "foobar", releases.IncludeAll))
@@ -73,8 +72,7 @@ func TestGoManager_Install_WithHTTPError(t *testing.T) {
 		Output:        os.Stdout,
 		Error:         os.Stderr,
 	}, tempDir)
-	assert.NoError(t, err)
-	assert.NotNil(t, sut)
+	require.NoError(t, err)
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
 	assert.Error(t, sut.Install(validVersion, runtime.GOOS, runtime.GOARCH, releases.IncludeAll))
@@ -105,7 +103,7 @@ func TestVerifyDownload(t *testing.T) {
 	file := releases.ReleaseFile{Filename: "go1.15.2.src.tar.gz", Sha256: "28bf9d0bcde251011caae230a4a05d917b172ea203f2a62f2c2f9533589d4b4d"}
 	destinationFile := filepath.Join(t.TempDir(), "download.rel")
 
-	assert.NoError(t, downloadRelease(file, destinationFile))
+	require.NoError(t, downloadRelease(file, destinationFile))
 	assert.NoError(t, verifyDownload(file, destinationFile))
 
 	fileutil.TryRemove(destinationFile)
@@ -113,18 +111,18 @@ func TestVerifyDownload(t *testing.T) {
 	assert.Error(t, verifyDownload(file, destinationFile))
 
 	f, err := os.Create(destinationFile)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	_ = f.Close()
 
 	assert.Error(t, verifyDownload(file, destinationFile))
 }
 
 func TestExtractRelease(t *testing.T) {
-	file := releases.ReleaseFile{Filename: "go1.15.2.src.tar.gz", Sha256: "28bf9d0bcde251011caae230a4a05d917b172ea203f2a62f2c2f9533589d4b4d"}
+	file := releases.ReleaseFile{Filename: "go1.15.2.src.tar.gz"}
 	destinationFile := filepath.Join(t.TempDir(), "download.tar.gz")
 	destinationDirectory := filepath.Join(t.TempDir(), "extracted")
 
-	assert.NoError(t, downloadRelease(file, destinationFile))
+	require.NoError(t, downloadRelease(file, destinationFile))
 
 	assert.NoError(t, extractRelease(destinationFile, destinationDirectory))
 	assert.Error(t, extractRelease(destinationFile, destinationDirectory))
@@ -135,7 +133,7 @@ func TestExtractRelease(t *testing.T) {
 
 func TestVerifyRelease(t *testing.T) {
 	destinationDirectory := filepath.Join(t.TempDir(), "go-installation")
-	assert.NoError(t, copy2.Copy(
+	require.NoError(t, copy2.Copy(
 		filepath.Join(runtime.GOROOT(), "bin", getExecutableName("go")),
 		filepath.Join(destinationDirectory, "go", "bin", getExecutableName("go")),
 	))

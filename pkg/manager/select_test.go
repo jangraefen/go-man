@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/NoizeMe/go-man/internal/fileutil"
 	"github.com/NoizeMe/go-man/pkg/tasks"
@@ -33,7 +34,6 @@ func TestGoManager_Select(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.NoError(t, sut.Select(validVersion))
 	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
@@ -66,9 +66,8 @@ func TestGoManager_Select_WithLinkFailure(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
-	assert.NoError(t, os.MkdirAll(filepath.Join(tempDir, selectedDirectoryName), 0700))
+	require.NoError(t, os.MkdirAll(filepath.Join(tempDir, selectedDirectoryName), 0700))
 	assert.Error(t, sut.Select(invalidVersion))
 
 	setupInstallation(t, tempDir, true, invalidVersion)
@@ -93,7 +92,6 @@ func TestGoManager_Select_WithFailingUnselect(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.Select(validVersion))
 }
@@ -117,12 +115,11 @@ func TestGoManager_Unselect(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.Unselect())
 	assert.False(t, fileutil.PathExists(selectedPath))
 
-	assert.NoError(t, link(sdkPath, selectedPath))
+	require.NoError(t, link(sdkPath, selectedPath))
 	sut.SelectedVersion = validVersion
 
 	assert.NoError(t, sut.Unselect())
@@ -145,7 +142,6 @@ func TestGoManager_Unselect_WithoutExistingDirectory(t *testing.T) {
 			Error:         os.Stderr,
 		},
 	}
-	assert.NotNil(t, sut)
 
 	assert.Error(t, sut.Unselect())
 }
