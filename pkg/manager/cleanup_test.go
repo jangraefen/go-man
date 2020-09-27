@@ -84,6 +84,7 @@ func TestGoManager_Cleanup_WithHTTPError(t *testing.T) {
 	}
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
+	delete(releases.ReleaseListCache, releases.IncludeStable)
 
 	assert.Error(t, sut.Cleanup())
 }

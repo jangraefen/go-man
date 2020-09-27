@@ -32,14 +32,14 @@ func TestListAll(t *testing.T) {
 	assert.Greater(t, len(allReleases), len(stableReleases))
 
 	httputil.Client = httputil.StaticResponseClient(500, nil, errors.New("failure"))
-	delete(releaseLists, IncludeStable)
+	delete(ReleaseListCache, IncludeStable)
 
 	stableReleases, err = ListAll(IncludeStable)
 	assert.Error(t, err)
 	assert.Empty(t, stableReleases)
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
-	delete(releaseLists, IncludeStable)
+	delete(ReleaseListCache, IncludeStable)
 
 	stableReleases, err = ListAll(IncludeStable)
 	assert.Error(t, err)
@@ -60,14 +60,14 @@ func TestGetLatest(t *testing.T) {
 	assert.NotNil(t, latestAll)
 
 	httputil.Client = httputil.StaticResponseClient(500, nil, errors.New("failure"))
-	delete(releaseLists, IncludeStable)
+	delete(ReleaseListCache, IncludeStable)
 
 	latestStable, err = GetLatest(IncludeStable)
 	assert.Error(t, err)
 	assert.Nil(t, latestStable)
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
-	delete(releaseLists, IncludeStable)
+	delete(ReleaseListCache, IncludeStable)
 
 	latestStable, err = GetLatest(IncludeStable)
 	assert.Error(t, err)
@@ -91,7 +91,7 @@ func TestGetForVersion(t *testing.T) {
 	assert.Nil(t, release)
 
 	httputil.Client = httputil.StaticResponseClient(500, nil, errors.New("failure"))
-	delete(releaseLists, IncludeAll)
+	delete(ReleaseListCache, IncludeAll)
 
 	release, exists, err = GetForVersion(IncludeAll, version.Must(version.NewVersion("1.12.16")))
 	assert.Error(t, err)
@@ -99,7 +99,7 @@ func TestGetForVersion(t *testing.T) {
 	assert.Nil(t, release)
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
-	delete(releaseLists, IncludeAll)
+	delete(ReleaseListCache, IncludeAll)
 
 	release, exists, err = GetForVersion(IncludeAll, version.Must(version.NewVersion("1.12.16")))
 	assert.Error(t, err)

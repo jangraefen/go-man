@@ -21,10 +21,6 @@ import (
 )
 
 func TestGoManager_Install(t *testing.T) {
-	t.Cleanup(func() {
-		httputil.Client = http.DefaultClient
-	})
-
 	validVersion := version.Must(version.NewVersion("1.15.2"))
 	invalidVersion := version.Must(version.NewVersion("42.1337.3"))
 
@@ -75,9 +71,11 @@ func TestGoManager_Install_WithHTTPError(t *testing.T) {
 	require.NoError(t, err)
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
+	delete(releases.ReleaseListCache, releases.IncludeAll)
 	assert.Error(t, sut.Install(validVersion, runtime.GOOS, runtime.GOARCH, releases.IncludeAll))
 
 	httputil.Client = httputil.StaticResponseClient(0, nil, errors.New("failure"))
+	delete(releases.ReleaseListCache, releases.IncludeAll)
 	assert.Error(t, sut.Install(validVersion, runtime.GOOS, runtime.GOARCH, releases.IncludeAll))
 }
 

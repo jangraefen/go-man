@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	releaseLists = map[ReleaseType]Collection{}
+	ReleaseListCache = map[ReleaseType]Collection{}
 )
 
 // SelectReleaseType is a function that returns the release type that matches the input parameters best.
@@ -40,16 +40,16 @@ func SelectReleaseType(unstable bool) ReleaseType {
 // This list is retrieved by querying a JSON endpoint that is provided by the official Golang website. If the endpoint
 // responds with any other status code than 200, an error is returned.
 func ListAll(releaseType ReleaseType) (Collection, error) {
-	if _, ok := releaseLists[releaseType]; !ok {
+	if _, ok := ReleaseListCache[releaseType]; !ok {
 		newReleaseList := Collection{}
 		if err := httputil.GetJSON(fmt.Sprintf(releaseListURLTemplate, releaseType), &newReleaseList); err != nil {
 			return nil, err
 		}
 
-		releaseLists[releaseType] = newReleaseList
+		ReleaseListCache[releaseType] = newReleaseList
 	}
 
-	return releaseLists[releaseType], nil
+	return ReleaseListCache[releaseType], nil
 }
 
 // GetLatest is a function that retrieves the latest release of the Golang SDK.
