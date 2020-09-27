@@ -134,8 +134,8 @@ func TestExtractRelease(t *testing.T) {
 func TestVerifyRelease(t *testing.T) {
 	destinationDirectory := filepath.Join(t.TempDir(), "go-installation")
 	require.NoError(t, copy2.Copy(
-		filepath.Join(runtime.GOROOT(), "bin", getExecutableName("go")),
-		filepath.Join(destinationDirectory, "go", "bin", getExecutableName("go")),
+		filepath.Join(runtime.GOROOT(), "VERSION"),
+		filepath.Join(destinationDirectory, "go", "VERSION"),
 	))
 
 	validVersion := version.Must(version.NewVersion("1.15.2"))
@@ -146,12 +146,4 @@ func TestVerifyRelease(t *testing.T) {
 
 	fileutil.TryRemove(destinationDirectory)
 	assert.Error(t, verifyRelease(validVersion, destinationDirectory))
-}
-
-func getExecutableName(name string) string {
-	if runtime.GOOS == "windows" { //nolint:goconst
-		return name + ".exe"
-	}
-
-	return name
 }
