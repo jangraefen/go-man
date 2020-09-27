@@ -40,8 +40,8 @@ github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/posener/cmd v1.3.3 h1:HVThcsh/xjlFufcVWHXMDj8L/jOExxeYZT88bThaDds=
-github.com/posener/cmd v1.3.3/go.mod h1:vkavhKoENUbsjrIatwx1TM7v6yxsQGhnNQaUENnyx9s=
+github.com/posener/cmd v1.3.4 h1:sVWSymUZGxaKcMxU7iKpsfXqopLYFtbKUTh5T8Exfok=
+github.com/posener/cmd v1.3.4/go.mod h1:vkavhKoENUbsjrIatwx1TM7v6yxsQGhnNQaUENnyx9s=
 github.com/posener/complete/v2 v2.0.1-alpha.12 h1:0wvkuDfHb5vSZlNBYgpEH4XQHpF46MjLPHav8XC77Nc=
 github.com/posener/complete/v2 v2.0.1-alpha.12/go.mod h1://JlL91cS2JV7rOl6LVHrRqBXoBUecJu3ILQPgbJiMQ=
 github.com/posener/formatter v1.0.0 h1:TwXJq26f9ERTjCpZj8xEWj77WPWfX/nBgGx52Ap/gYM=
