@@ -21,6 +21,10 @@ const (
 	IncludeStable = ReleaseType("stable")
 )
 
+var (
+	releaseLists = map[ReleaseType]Collection{}
+)
+
 // SelectReleaseType is a function that returns the release type that matches the input parameters best.
 // For convenience can be used to get the correct release type by describing what kind of releases are desired and the
 // correct release type is then selected by this function. By default IncludeStable is returned.
@@ -36,12 +40,16 @@ func SelectReleaseType(unstable bool) ReleaseType {
 // This list is retrieved by querying a JSON endpoint that is provided by the official Golang website. If the endpoint
 // responds with any other status code than 200, an error is returned.
 func ListAll(releaseType ReleaseType) (Collection, error) {
-	versions := make([]*Release, 0)
-	if err := httputil.GetJSON(fmt.Sprintf(releaseListURLTemplate, releaseType), &versions); err != nil {
-		return nil, err
+	if _, ok := releaseLists[releaseType]; !ok {
+		newReleaseList := Collection{}
+		if err := httputil.GetJSON(fmt.Sprintf(releaseListURLTemplate, releaseType), &newReleaseList); err != nil {
+			return nil, err
+		}
+
+		releaseLists[releaseType] = newReleaseList
 	}
 
-	return versions, nil
+	return releaseLists[releaseType], nil
 }
 
 // GetLatest is a function that retrieves the latest release of the Golang SDK.
