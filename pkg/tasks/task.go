@@ -4,6 +4,7 @@ import (
 	"io"
 )
 
+// The Task struct holds the necessary information to produce output for users that execute a multi-step process.
 type Task struct {
 	ErrorExitCode int
 	Output        io.Writer
