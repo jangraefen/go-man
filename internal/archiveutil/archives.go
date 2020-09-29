@@ -16,6 +16,5 @@ func Extract(archiveFile, destinationDirection string, overwrite bool) (bool, er
 	}
 
 	fileutil.TryRemove(destinationDirection)
-
 	return true, archiver.Unarchive(archiveFile, destinationDirection)
 }
