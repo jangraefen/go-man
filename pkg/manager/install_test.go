@@ -91,9 +91,11 @@ func TestDownloadRelease(t *testing.T) {
 	assert.Error(t, downloadRelease(file, destinationFile))
 
 	httputil.Client = httputil.StaticResponseClient(404, []byte("not found"), nil)
+	fileutil.TryRemove(destinationFile)
 	assert.Error(t, downloadRelease(file, destinationFile))
 
 	httputil.Client = httputil.StaticResponseClient(0, nil, errors.New("failure"))
+	fileutil.TryRemove(destinationFile)
 	assert.Error(t, downloadRelease(file, destinationFile))
 }
 
