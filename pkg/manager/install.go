@@ -39,6 +39,10 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	extractionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("extracting-%s", file.Version))
 	sdkDirectory := filepath.Join(m.RootDirectory, file.Version)
 
+	if fileutil.PathExists(sdkDirectory) {
+		return fmt.Errorf("installation skipped, since %s is already present", sdkDirectory)
+	}
+
 	defer fileutil.TryRemove(downloadedArchive)
 	defer fileutil.TryRemove(extractionDirectory)
 
