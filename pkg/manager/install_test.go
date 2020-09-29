@@ -127,6 +127,8 @@ func TestExtractRelease(t *testing.T) {
 
 	fileutil.TryRemove(destinationFile)
 	assert.Error(t, extractRelease(destinationFile, destinationDirectory))
+
+	assert.Error(t, extractRelease(getTestFile(t, "invalid.zip"), destinationDirectory))
 }
 
 func TestVerifyRelease(t *testing.T) {
@@ -144,4 +146,19 @@ func TestVerifyRelease(t *testing.T) {
 
 	fileutil.TryRemove(destinationDirectory)
 	assert.Error(t, verifyRelease(validVersion, destinationDirectory))
+}
+
+func getTestFile(t *testing.T, fileName string) string {
+	t.Helper()
+
+	_, file, _, _ := runtime.Caller(0)
+	dir, _ := filepath.Split(file)
+
+	return filepath.Clean(filepath.Join(
+		dir,
+		"..",
+		"..",
+		"test",
+		fileName,
+	))
 }

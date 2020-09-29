@@ -35,29 +35,40 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	}
 
 	file := files[0]
-	destinationFile := filepath.Join(m.RootDirectory, file.Filename)
-	destinationDirectory := filepath.Join(m.RootDirectory, file.Version)
+	downloadedArchive := filepath.Join(m.RootDirectory, file.Filename)
+	extractionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("extracting-%s", file.Version))
+	sdkDirectory := filepath.Join(m.RootDirectory, file.Version)
+
+	if fileutil.PathExists(sdkDirectory) {
+		return fmt.Errorf("installation skipped, since %s is already present", sdkDirectory)
+	}
+
+	defer fileutil.TryRemove(downloadedArchive)
+	defer fileutil.TryRemove(extractionDirectory)
 
 	installTask.Printf("Downloading: %s", file.GetURL())
-	if err := downloadRelease(file, destinationFile); err != nil {
+	if err := downloadRelease(file, downloadedArchive); err != nil {
 		return err
 	}
 
 	installTask.Printf("Verifying integrity: %s", file.Sha256)
-	if err := verifyDownload(file, destinationFile); err != nil {
+	if err := verifyDownload(file, downloadedArchive); err != nil {
 		return err
 	}
 
 	installTask.Printf("Extracting: %s", file.Filename)
-	if err := extractRelease(destinationFile, destinationDirectory); err != nil {
+	if err := extractRelease(downloadedArchive, extractionDirectory); err != nil {
 		return err
 	}
 
-	installTask.Printf("Removing archive: %s", destinationFile)
-	fileutil.TryRemove(destinationFile)
+	installTask.Printf("Verifying installation: %s", extractionDirectory)
+	if err := verifyRelease(versionNumber, extractionDirectory); err != nil {
+		return err
+	}
 
-	installTask.Printf("Verifying installation: %s", destinationDirectory)
-	if err := verifyRelease(versionNumber, destinationDirectory); err != nil {
+	installTask.Printf("Moving installation to final location: %s", sdkDirectory)
+	if err := fileutil.MoveDirectory(filepath.Join(extractionDirectory, "go"), sdkDirectory); err != nil {
+		fileutil.TryRemove(sdkDirectory)
 		return err
 	}
 

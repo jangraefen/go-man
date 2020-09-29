@@ -57,7 +57,7 @@ func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion
 
 	goVersionString := fmt.Sprintf("go%s", goVersion)
 
-	sdkPath := filepath.Join(rootDirectory, goVersionString, "go")
+	sdkPath := filepath.Join(rootDirectory, goVersionString)
 	versionPath := filepath.Join(sdkPath, "VERSION")
 
 	versionContent := goVersionString
