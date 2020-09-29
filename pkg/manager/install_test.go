@@ -128,6 +128,7 @@ func TestExtractRelease(t *testing.T) {
 	fileutil.TryRemove(destinationFile)
 	assert.Error(t, extractRelease(destinationFile, destinationDirectory))
 
+	fileutil.TryRemove(destinationDirectory)
 	assert.Error(t, extractRelease(getTestFile(t, "invalid.zip"), destinationDirectory))
 }
 
