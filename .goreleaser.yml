@@ -3,9 +3,9 @@ before:
     - go mod download
 
 builds:
-  - id: "goman-cli"
-    main: ./cmd/goman/main.go
-    binary: goman
+  - id: "gmn-cli"
+    main: ./cmd/gmn/main.go
+    binary: gmn
     env:
       - CGO_ENABLED=0
       - GO111MODULE=on
@@ -15,17 +15,17 @@ builds:
       - darwin
 
 archives:
-  - name_template: "goman{{ .Version }}.{{ .Os }}-{{ .Arch }}"
+  - name_template: "gmn{{ .Version }}.{{ .Os }}-{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
 
 source:
   enabled: true
-  name_template: "goman{{ .Version }}.src"
+  name_template: "gmn{{ .Version }}.src"
 
 checksum:
-  name_template: "goman{{ .Version }}.checksums.txt"
+  name_template: "gmn{{ .Version }}.checksums.txt"
 
 milestones:
   - close: true
