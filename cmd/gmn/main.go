@@ -17,7 +17,7 @@ import (
 
 var (
 	root = cmd.New(
-		cmd.OptName("goman"),
+		cmd.OptName("gmn"),
 		cmd.OptDetails("A manager for Go installations"),
 	)
 
@@ -187,15 +187,15 @@ func handleCleanup(task *tasks.Task) {
 }
 
 func gomanRoot() string {
-	root := os.Getenv("GOMANROOT")
+	root := os.Getenv("GMNROOT")
 	if len(root) > 0 {
 		return root
 	}
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return filepath.Join("/", ".goman")
+		return filepath.Join("/", ".gmn")
 	}
 
-	return filepath.Join(homeDir, ".goman")
+	return filepath.Join(homeDir, ".gmn")
 }
