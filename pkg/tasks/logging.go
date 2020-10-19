@@ -11,23 +11,23 @@ func (t Task) Printf(format string, args ...interface{}) {
 	_, _ = fmt.Fprintf(t.Output, t.logTemplate('+', format), args...)
 }
 
-// Dief is a function that logs any string to system err and causes the application to exit.
+// Fatalf is a function that logs any string to system err and causes the application to exit.
 // It provides the same formatting as the fmt package does.
-func (t Task) Dief(format string, args ...interface{}) {
+func (t Task) Fatalf(format string, args ...interface{}) {
 	_, _ = fmt.Fprintf(t.Error, t.logTemplate('-', format), args...)
 	os.Exit(t.ErrorExitCode)
 }
 
-// DieOnError is a function that logs any error to system err and causes the application to exit, if a condition matches.
-func (t Task) DieOnError(err error) {
-	t.DieIff(err != nil, "%s", err)
+// FatalOnError is a function that logs any error to system err and causes the application to exit, if a condition matches.
+func (t Task) FatalOnError(err error) {
+	t.FatalIff(err != nil, "%s", err)
 }
 
-// DieIff is a function that logs any string to system err and causes the application to exit, if a condition matches.
+// FatalIff is a function that logs any string to system err and causes the application to exit, if a condition matches.
 // It provides the same formatting as the fmt package does.
-func (t Task) DieIff(condition bool, format string, args ...interface{}) {
+func (t Task) FatalIff(condition bool, format string, args ...interface{}) {
 	if condition {
-		t.Dief(format, args...)
+		t.Fatalf(format, args...)
 	}
 }
 
