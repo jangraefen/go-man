@@ -5,8 +5,8 @@ package manager
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
-	"github.com/otiai10/copy"
 	"golang.org/x/sys/windows"
 
 	"github.com/NoizeMe/go-man/internal/fileutil"
@@ -21,7 +21,7 @@ func link(sourceDirectory, targetDirectory string) error {
 		return os.Symlink(sourceDirectory, targetDirectory)
 	}
 
-	return copy.Copy(sourceDirectory, targetDirectory)
+	return exec.Command("mklink", "/J", targetDirectory, sourceDirectory).Run()
 }
 
 func unlink(directory string) error {
