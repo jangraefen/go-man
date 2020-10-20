@@ -27,22 +27,27 @@ func (m *GoManager) UninstallAll() error {
 // Uninstall is a function that removes an existing installation of the Go SDK.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Uninstall(versionNumber *version.Version) error {
-	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
+	m.task.Printf("Uninstalling %s", versionNumber)
+	uninstallTask := m.task.Step()
+
 	if versionNumber.Equal(m.SelectedVersion) {
-		if err := m.Unselect(); err != nil {
+		if err := m.unselect(uninstallTask); err != nil {
 			return err
 		}
 	}
 
-	m.task.Printf("Removing %s", versionNumber)
+	removeDescription := "Deleting installation directory"
+	removeFunction := func() error {
+		versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 
-	uninstallTask := m.task.Step()
-	uninstallTask.Printf("Deleting SDK: %s", versionDirectory)
+		if !fileutil.PathExists(versionDirectory) {
+			return fmt.Errorf("no directory %s to uninstall from", versionDirectory)
+		}
 
-	if !fileutil.PathExists(versionDirectory) {
-		return fmt.Errorf("no directory %s to uninstall from", versionDirectory)
+		return os.RemoveAll(versionDirectory)
 	}
-	if err := os.RemoveAll(versionDirectory); err != nil {
+
+	if err := uninstallTask.Track(removeDescription, removeFunction); err != nil {
 		return err
 	}
 
