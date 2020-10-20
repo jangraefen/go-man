@@ -3,6 +3,7 @@ package manager
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -10,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-version"
-	copy2 "github.com/otiai10/copy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -136,12 +136,10 @@ func TestExtractRelease(t *testing.T) {
 
 func TestVerifyRelease(t *testing.T) {
 	destinationDirectory := filepath.Join(t.TempDir(), "go-installation")
-	require.NoError(t, copy2.Copy(
-		filepath.Join(runtime.GOROOT(), "VERSION"),
-		filepath.Join(destinationDirectory, "go", "VERSION"),
-	))
+	require.NoError(t, os.MkdirAll(filepath.Join(destinationDirectory, "go"), 7000))
+	require.NoError(t, ioutil.WriteFile(filepath.Join(destinationDirectory, "go", "VERSION"), []byte("go1.15"), 0600))
 
-	validVersion := version.Must(version.NewVersion("1.15.2"))
+	validVersion := version.Must(version.NewVersion("1.15.0"))
 	invalidVersion := version.Must(version.NewVersion("42.1337.3"))
 
 	assert.NoError(t, verifyRelease(validVersion, destinationDirectory))
