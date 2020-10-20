@@ -28,8 +28,8 @@ func (t Task) Track(description string, workload func() error) error {
 	if err := workload(); err != nil {
 		_, _ = fmt.Fprintln(t.Output, " Failed.")
 		return err
-	} else {
-		_, _ = fmt.Fprintln(t.Output, " Done.")
-		return nil
 	}
+
+	_, _ = fmt.Fprintln(t.Output, " Done.")
+	return nil
 }

@@ -46,33 +46,28 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	defer fileutil.TryRemove(downloadedArchive)
 	defer fileutil.TryRemove(extractionDirectory)
 
-	downloadDescription := "Downloading distribution"
 	downloadFunction := func() error { return downloadRelease(file, downloadedArchive) }
-	if err := installTask.Track(downloadDescription, downloadFunction); err != nil {
+	if err := installTask.Track("Downloading distribution", downloadFunction); err != nil {
 		return err
 	}
 
-	checksumDescription := "Verifying download integrity"
 	checksumFunction := func() error { return verifyDownload(file, downloadedArchive) }
-	if err := installTask.Track(checksumDescription, checksumFunction); err != nil {
+	if err := installTask.Track("Verifying download integrity", checksumFunction); err != nil {
 		return err
 	}
 
-	extractDescription := "Extracting distribution"
 	extractFunction := func() error { return extractRelease(downloadedArchive, extractionDirectory) }
-	if err := installTask.Track(extractDescription, extractFunction); err != nil {
+	if err := installTask.Track("Extracting distribution", extractFunction); err != nil {
 		return err
 	}
 
-	verifyDescription := "Verifying installation"
 	verifyFunction := func() error { return verifyRelease(versionNumber, extractionDirectory) }
-	if err := installTask.Track(verifyDescription, verifyFunction); err != nil {
+	if err := installTask.Track("Verifying installation", verifyFunction); err != nil {
 		return err
 	}
 
-	moveDescription := "Moving installation to final location"
 	moveFunction := func() error { return fileutil.MoveDirectory(filepath.Join(extractionDirectory, "go"), sdkDirectory) }
-	if err := installTask.Track(moveDescription, moveFunction); err != nil {
+	if err := installTask.Track("Moving installation to final location", moveFunction); err != nil {
 		fileutil.TryRemove(sdkDirectory)
 		return err
 	}

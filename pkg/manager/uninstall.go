@@ -36,18 +36,14 @@ func (m *GoManager) Uninstall(versionNumber *version.Version) error {
 		}
 	}
 
-	removeDescription := "Deleting installation directory"
 	removeFunction := func() error {
 		versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
-
 		if !fileutil.PathExists(versionDirectory) {
 			return fmt.Errorf("no directory %s to uninstall from", versionDirectory)
 		}
-
 		return os.RemoveAll(versionDirectory)
 	}
-
-	if err := uninstallTask.Track(removeDescription, removeFunction); err != nil {
+	if err := uninstallTask.Track("Deleting installation directory", removeFunction); err != nil {
 		return err
 	}
 
