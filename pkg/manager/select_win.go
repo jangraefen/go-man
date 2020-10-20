@@ -21,10 +21,7 @@ func link(sourceDirectory, targetDirectory string) error {
 		return os.Symlink(sourceDirectory, targetDirectory)
 	}
 
-	command := exec.Command("cmd", "/c", "mklink", "/J", targetDirectory, sourceDirectory)
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	return command.Run()
+	return exec.Command("cmd", "/c", "mklink", "/J", targetDirectory, sourceDirectory).Run()
 }
 
 func unlink(directory string) error {
