@@ -3,6 +3,7 @@ module github.com/NoizeMe/go-man
 go 1.15
 
 require (
+	github.com/gookit/color v1.3.1
 	github.com/hashicorp/go-version v1.2.1
 	github.com/mholt/archiver/v3 v3.3.0
 	github.com/otiai10/copy v1.2.0
