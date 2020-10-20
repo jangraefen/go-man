@@ -17,6 +17,7 @@ import (
 // As installation parameters the version number, operating system and platform architecture are considered when choosing the
 // correct installation artifacts. The releaseType parameter is used to limit the amount of accepted versions. Feedback is
 // directly printed to the stdout or stderr, so nothing is returned here.
+//nolint:funlen
 func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arch string, releaseType releases.ReleaseType) error {
 	m.task.Printf("Installing %s %s-%s:", versionNumber, operatingSystem, arch)
 	installTask := m.task.Step()
@@ -46,28 +47,33 @@ func (m *GoManager) Install(versionNumber *version.Version, operatingSystem, arc
 	defer fileutil.TryRemove(downloadedArchive)
 	defer fileutil.TryRemove(extractionDirectory)
 
-	installTask.Printf("Downloading: %s", file.GetURL())
-	if err := downloadRelease(file, downloadedArchive); err != nil {
+	downloadDescription := "Downloading distribution"
+	downloadFunction := func() error { return downloadRelease(file, downloadedArchive) }
+	if err := installTask.Track(downloadDescription, downloadFunction); err != nil {
 		return err
 	}
 
-	installTask.Printf("Verifying integrity: %s", file.Sha256)
-	if err := verifyDownload(file, downloadedArchive); err != nil {
+	checksumDescription := "Verifying download integrity"
+	checksumFunction := func() error { return verifyDownload(file, downloadedArchive) }
+	if err := installTask.Track(checksumDescription, checksumFunction); err != nil {
 		return err
 	}
 
-	installTask.Printf("Extracting: %s", file.Filename)
-	if err := extractRelease(downloadedArchive, extractionDirectory); err != nil {
+	extractDescription := "Extracting distribution"
+	extractFunction := func() error { return extractRelease(downloadedArchive, extractionDirectory) }
+	if err := installTask.Track(extractDescription, extractFunction); err != nil {
 		return err
 	}
 
-	installTask.Printf("Verifying installation: %s", extractionDirectory)
-	if err := verifyRelease(versionNumber, extractionDirectory); err != nil {
+	verifyDescription := "Verifying installation"
+	verifyFunction := func() error { return verifyRelease(versionNumber, extractionDirectory) }
+	if err := installTask.Track(verifyDescription, verifyFunction); err != nil {
 		return err
 	}
 
-	installTask.Printf("Moving installation to final location: %s", sdkDirectory)
-	if err := fileutil.MoveDirectory(filepath.Join(extractionDirectory, "go"), sdkDirectory); err != nil {
+	moveDescription := "Moving installation to final location"
+	moveFunction := func() error { return fileutil.MoveDirectory(filepath.Join(extractionDirectory, "go"), sdkDirectory) }
+	if err := installTask.Track(moveDescription, moveFunction); err != nil {
 		fileutil.TryRemove(sdkDirectory)
 		return err
 	}

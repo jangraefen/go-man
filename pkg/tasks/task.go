@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -20,4 +21,15 @@ func (t Task) Step() *Task {
 		Error:         t.Error,
 		indention:     t.indention + 1,
 	}
+}
+
+func (t Task) Track(description string, workload func() error) error {
+	_, _ = fmt.Fprintf(t.Output, t.logTemplate('+', "%s...", false), description)
+	if err := workload(); err != nil {
+		_, _ = fmt.Fprintln(t.Output, " Failed.")
+		return err
+	}
+
+	_, _ = fmt.Fprintln(t.Output, " Done.")
+	return nil
 }

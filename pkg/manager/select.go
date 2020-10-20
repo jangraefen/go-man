@@ -8,30 +8,29 @@ import (
 	"github.com/hashicorp/go-version"
 
 	"github.com/NoizeMe/go-man/internal/fileutil"
+	"github.com/NoizeMe/go-man/pkg/tasks"
 )
 
 // Select is a function that selects an existing installation of the Go SDK as the active one.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Select(versionNumber *version.Version) error {
-	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
-	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
-
 	m.task.Printf("Selecting version as active: %s", versionNumber)
-	selectTask := m.task.Step()
 
+	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
 	if !fileutil.PathExists(versionDirectory) {
 		return fmt.Errorf("version %v was not found", versionNumber)
 	}
 
+	selectTask := m.task.Step()
 	if m.SelectedVersion != nil {
-		if err := m.Unselect(); err != nil {
+		if err := m.unselect(selectTask); err != nil {
 			return err
 		}
 	}
 
-	selectTask.Printf("Linking %s to %s", fmt.Sprintf("go%s", versionNumber), selectedDirectoryName)
-
-	if err := link(versionDirectory, selectedDirectory); err != nil {
+	linkDescription := "Linking selection directory"
+	linkFunction := func() error { return link(versionDirectory, filepath.Join(m.RootDirectory, selectedDirectoryName)) }
+	if err := selectTask.Track(linkDescription, linkFunction); err != nil {
 		return err
 	}
 
@@ -43,16 +42,17 @@ func (m *GoManager) Select(versionNumber *version.Version) error {
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Unselect() error {
 	m.task.Printf("Unselect current selected version")
-	unselectTask := m.task.Step()
-
 	if m.SelectedVersion == nil {
 		return errors.New("could not unselect because no version is selected")
 	}
 
-	selectedDirectory := filepath.Join(m.RootDirectory, selectedDirectoryName)
+	return m.unselect(m.task.Step())
+}
 
-	unselectTask.Printf("Unlinking directory: %s", selectedDirectory)
-	if err := unlink(selectedDirectory); err != nil {
+func (m *GoManager) unselect(task *tasks.Task) error {
+	unlinkDescription := "Unlinking selection directory"
+	unlinkFunction := func() error { return unlink(filepath.Join(m.RootDirectory, selectedDirectoryName)) }
+	if err := task.Track(unlinkDescription, unlinkFunction); err != nil {
 		return err
 	}
 
