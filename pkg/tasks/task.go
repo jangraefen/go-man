@@ -30,6 +30,7 @@ func (t Task) Step() *Task {
 	}
 }
 
+// Track is a function that logs the tracked status of a given workload function.
 func (t Task) Track(description string, workload func() error) error {
 	_, _ = fmt.Fprintf(t.Output, t.logTemplate("%s...", false), description)
 	if err := workload(); err != nil {

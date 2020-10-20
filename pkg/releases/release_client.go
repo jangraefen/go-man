@@ -22,6 +22,7 @@ const (
 )
 
 var (
+	// ReleaseListCache is a map that caches the last fetched release list. Visible mostly for testing.
 	ReleaseListCache = map[ReleaseType]Collection{}
 )
 
