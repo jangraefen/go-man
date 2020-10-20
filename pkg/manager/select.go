@@ -28,8 +28,9 @@ func (m *GoManager) Select(versionNumber *version.Version) error {
 		}
 	}
 
+	linkDescription := "Linking selection directory"
 	linkFunction := func() error { return link(versionDirectory, filepath.Join(m.RootDirectory, selectedDirectoryName)) }
-	if err := selectTask.Track("Linking selection directory", linkFunction); err != nil {
+	if err := selectTask.Track(linkDescription, linkFunction); err != nil {
 		return err
 	}
 
@@ -49,8 +50,9 @@ func (m *GoManager) Unselect() error {
 }
 
 func (m *GoManager) unselect(task *tasks.Task) error {
+	unlinkDescription := "Unlinking selection directory"
 	unlinkFunction := func() error { return unlink(filepath.Join(m.RootDirectory, selectedDirectoryName)) }
-	if err := task.Track("Unlinking selection directory", unlinkFunction); err != nil {
+	if err := task.Track(unlinkDescription, unlinkFunction); err != nil {
 		return err
 	}
 
