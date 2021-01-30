@@ -3,7 +3,7 @@ package archiveutil
 import (
 	"github.com/mholt/archiver/v3"
 
-	"github.com/NoizeMe/go-man/internal/fileutil"
+	"github.com/jangraefen/go-man/internal/fileutil"
 )
 
 // Extract is a function that extracts any given archive file into a given destination directory.

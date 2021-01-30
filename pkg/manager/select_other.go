@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/NoizeMe/go-man/internal/fileutil"
+	"github.com/jangraefen/go-man/internal/fileutil"
 )
 
 func link(sourceDirectory, targetDirectory string) error {

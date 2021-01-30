@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/internal/httputil"
+	"github.com/jangraefen/go-man/internal/httputil"
 )
 
 // The ReleaseType type is a string that describes what kind of release types should be returned by a release list.

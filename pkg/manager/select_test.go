@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/NoizeMe/go-man/internal/fileutil"
-	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/jangraefen/go-man/internal/fileutil"
+	"github.com/jangraefen/go-man/pkg/tasks"
 )
 
 func TestGoManager_Select(t *testing.T) {

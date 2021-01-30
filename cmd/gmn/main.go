@@ -9,10 +9,10 @@ import (
 	"github.com/posener/cmd"
 	"github.com/posener/complete/v2/predict"
 
-	"github.com/NoizeMe/go-man/internal/fileutil"
-	"github.com/NoizeMe/go-man/pkg/manager"
-	"github.com/NoizeMe/go-man/pkg/releases"
-	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/jangraefen/go-man/internal/fileutil"
+	"github.com/jangraefen/go-man/pkg/manager"
+	"github.com/jangraefen/go-man/pkg/releases"
+	"github.com/jangraefen/go-man/pkg/tasks"
 )
 
 var (

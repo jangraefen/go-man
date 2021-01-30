@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/jangraefen/go-man/pkg/tasks"
 )
 
 const (

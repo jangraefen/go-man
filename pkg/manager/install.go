@@ -7,10 +7,10 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/internal/archiveutil"
-	"github.com/NoizeMe/go-man/internal/fileutil"
-	"github.com/NoizeMe/go-man/internal/httputil"
-	"github.com/NoizeMe/go-man/pkg/releases"
+	"github.com/jangraefen/go-man/internal/archiveutil"
+	"github.com/jangraefen/go-man/internal/fileutil"
+	"github.com/jangraefen/go-man/internal/httputil"
+	"github.com/jangraefen/go-man/pkg/releases"
 )
 
 // Install is a function that installs new instances of the Go SDK.

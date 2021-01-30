@@ -1,4 +1,4 @@
-module github.com/NoizeMe/go-man
+module github.com/jangraefen/go-man
 
 go 1.15
 

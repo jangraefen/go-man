@@ -7,8 +7,8 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/NoizeMe/go-man/internal/fileutil"
-	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/jangraefen/go-man/internal/fileutil"
+	"github.com/jangraefen/go-man/pkg/tasks"
 )
 
 // Select is a function that selects an existing installation of the Go SDK as the active one.

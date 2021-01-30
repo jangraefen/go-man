@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/NoizeMe/go-man/internal/fileutil"
+	"github.com/jangraefen/go-man/internal/fileutil"
 )
 
 func TestExtractArchive(t *testing.T) {

@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/NoizeMe/go-man/internal/httputil"
-	"github.com/NoizeMe/go-man/pkg/releases"
-	"github.com/NoizeMe/go-man/pkg/tasks"
+	"github.com/jangraefen/go-man/internal/httputil"
+	"github.com/jangraefen/go-man/pkg/releases"
+	"github.com/jangraefen/go-man/pkg/tasks"
 )
 
 func TestGoManager_Cleanup(t *testing.T) {
