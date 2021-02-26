@@ -37,6 +37,17 @@ type Release struct {
 	Files []ReleaseFile `json:"files"`
 }
 
+// GetVersionName is a getter that returns the version number for a Golang release as a string.
+// Since the Version field of a release is prefixed by the string "go", this method returns a substring of this fields that
+// is stripped of that exact prefix, to allow easier processing.
+func (r Release) GetVersionName() string {
+	if r.Version == "" {
+		return ""
+	}
+
+	return strings.TrimPrefix(r.Version, "go")
+}
+
 // GetVersionNumber is a getter that returns the version number for a Golang release.
 // Since the Version field of a release is prefixed by the string "go", this method returns a substring of this fields that
 // is stripped of that exact prefix, to allow easier processing.
@@ -45,7 +56,7 @@ func (r Release) GetVersionNumber() *version.Version {
 		return nil
 	}
 
-	return version.Must(version.NewVersion(strings.TrimPrefix(r.Version, "go")))
+	return version.Must(version.NewVersion(r.GetVersionName()))
 }
 
 // FindFiles is a helper that returns a sub-slice of all files that match the given operating system and architecture.

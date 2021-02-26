@@ -28,9 +28,9 @@ func TestNewManager(t *testing.T) {
 	assert.Empty(t, manager.InstalledVersions)
 	assert.Nil(t, manager.SelectedVersion)
 
-	setupInstallation(t, rootDirectory, true, validVersion)
-	setupInstallation(t, rootDirectory, true, anotherValidVersion)
-	setupInstallation(t, rootDirectory, false, invalidVersion)
+	setupInstallation(t, rootDirectory, true, validVersion.String())
+	setupInstallation(t, rootDirectory, true, anotherValidVersion.String())
+	setupInstallation(t, rootDirectory, false, invalidVersion.String())
 	require.NoError(t, link(
 		filepath.Join(rootDirectory, "go1.15.2"),
 		filepath.Join(rootDirectory, selectedDirectoryName),
@@ -52,7 +52,7 @@ func TestNewManager(t *testing.T) {
 	assert.Nil(t, manager)
 }
 
-func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion fmt.Stringer) {
+func setupInstallation(t *testing.T, rootDirectory string, valid bool, goVersion string) {
 	t.Helper()
 
 	goVersionString := fmt.Sprintf("go%s", goVersion)

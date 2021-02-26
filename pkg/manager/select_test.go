@@ -21,8 +21,8 @@ func TestGoManager_Select(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, true, validVersion)
-	setupInstallation(t, tempDir, true, anotherValidVersion)
+	setupInstallation(t, tempDir, true, validVersion.String())
+	setupInstallation(t, tempDir, true, anotherValidVersion.String())
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -70,7 +70,7 @@ func TestGoManager_Select_WithLinkFailure(t *testing.T) {
 	require.NoError(t, os.MkdirAll(filepath.Join(tempDir, selectedDirectoryName), 0700))
 	assert.Error(t, sut.Select(invalidVersion))
 
-	setupInstallation(t, tempDir, true, invalidVersion)
+	setupInstallation(t, tempDir, true, invalidVersion.String())
 	assert.Error(t, sut.Select(invalidVersion))
 }
 
@@ -80,7 +80,7 @@ func TestGoManager_Select_WithFailingUnselect(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, true, validVersion)
+	setupInstallation(t, tempDir, true, validVersion.String())
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -96,6 +96,29 @@ func TestGoManager_Select_WithFailingUnselect(t *testing.T) {
 	assert.Error(t, sut.Select(validVersion))
 }
 
+func TestGoManager_Select_WithTwoPartVersion(t *testing.T) {
+	validVersion := version.Must(version.NewVersion("1.16"))
+
+	tempDir := t.TempDir()
+
+	setupInstallation(t, tempDir, true, "1.16")
+
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{validVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
+
+	assert.NoError(t, sut.Select(validVersion))
+	assert.DirExists(t, filepath.Join(tempDir, "go1.16"))
+	assert.True(t, fileutil.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
+}
+
 func TestGoManager_Unselect(t *testing.T) {
 	validVersion := version.Must(version.NewVersion("1.15.2"))
 
@@ -103,7 +126,7 @@ func TestGoManager_Unselect(t *testing.T) {
 	sdkPath := filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion))
 	selectedPath := filepath.Join(tempDir, selectedDirectoryName)
 
-	setupInstallation(t, tempDir, true, validVersion)
+	setupInstallation(t, tempDir, true, validVersion.String())
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,

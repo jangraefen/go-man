@@ -14,11 +14,12 @@ import (
 // Select is a function that selects an existing installation of the Go SDK as the active one.
 // Feedback is directly printed to the stdout or stderr, so nothing is returned here.
 func (m *GoManager) Select(versionNumber *version.Version) error {
-	m.task.Printf("Selecting version as active: %s", versionNumber)
+	versionName := toVersionName(versionNumber)
+	m.task.Printf("Selecting version as active: %s", versionName)
 
-	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionNumber))
+	versionDirectory := filepath.Join(m.RootDirectory, fmt.Sprintf("go%s", versionName))
 	if !fileutil.PathExists(versionDirectory) {
-		return fmt.Errorf("version %v was not found", versionNumber)
+		return fmt.Errorf("version %v was not found", versionName)
 	}
 
 	selectTask := m.task.Step()

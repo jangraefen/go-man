@@ -20,8 +20,8 @@ func TestGoManager_UninstallAll(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, true, validVersion)
-	setupInstallation(t, tempDir, true, anotherValidVersion)
+	setupInstallation(t, tempDir, true, validVersion.String())
+	setupInstallation(t, tempDir, true, "1.14")
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -36,9 +36,31 @@ func TestGoManager_UninstallAll(t *testing.T) {
 
 	assert.NoError(t, sut.UninstallAll())
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))
-	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", anotherValidVersion)))
+	assert.NoDirExists(t, filepath.Join(tempDir, "go1.14"))
 
 	assert.NoError(t, sut.UninstallAll())
+}
+
+func TestGoManager_UninstallWithTwoPartVersion(t *testing.T) {
+	validVersion := version.Must(version.NewVersion("1.16"))
+
+	tempDir := t.TempDir()
+
+	setupInstallation(t, tempDir, true, "1.16")
+
+	sut := &GoManager{
+		RootDirectory:     tempDir,
+		InstalledVersions: version.Collection{validVersion},
+		SelectedVersion:   nil,
+		task: &tasks.Task{
+			ErrorExitCode: 1,
+			Output:        os.Stdout,
+			Error:         os.Stderr,
+		},
+	}
+
+	assert.NoError(t, sut.Uninstall(validVersion))
+	assert.NoDirExists(t, filepath.Join(tempDir, "go1.16"))
 }
 
 func TestGoManager_UninstallAll_WithBrokenInstallation(t *testing.T) {
@@ -47,7 +69,7 @@ func TestGoManager_UninstallAll_WithBrokenInstallation(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, true, validVersion)
+	setupInstallation(t, tempDir, true, validVersion.String())
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -69,7 +91,7 @@ func TestGoManager_Uninstall(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, true, validVersion)
+	setupInstallation(t, tempDir, true, validVersion.String())
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -93,7 +115,7 @@ func TestGoManager_Uninstall(t *testing.T) {
 	assert.False(t, fileutil.PathExists(filepath.Join(tempDir, selectedDirectoryName)))
 
 	sut.InstalledVersions = version.Collection{validVersion}
-	setupInstallation(t, tempDir, true, validVersion)
+	setupInstallation(t, tempDir, true, validVersion.String())
 
 	assert.NoError(t, sut.Uninstall(validVersion))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", validVersion)))

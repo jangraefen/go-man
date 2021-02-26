@@ -12,6 +12,26 @@ import (
 	"github.com/jangraefen/go-man/internal/httputil"
 )
 
+func TestRelease_GetVersionName(t *testing.T) {
+	sut := &Release{}
+	assert.Empty(t, sut.GetVersionName())
+
+	sut.Version = ""
+	assert.Empty(t, sut.GetVersionName())
+
+	sut.Version = "go1.15.2"
+	assert.Equal(t, "1.15.2", sut.GetVersionName())
+
+	sut.Version = "1.15.2"
+	assert.Equal(t, "1.15.2", sut.GetVersionName())
+
+	sut.Version = "go1.15"
+	assert.Equal(t, "1.15", sut.GetVersionName())
+
+	sut.Version = "1.15"
+	assert.Equal(t, "1.15", sut.GetVersionName())
+}
+
 func TestRelease_GetVersionNumber(t *testing.T) {
 	sut := &Release{}
 	assert.Nil(t, sut.GetVersionNumber())
@@ -26,6 +46,10 @@ func TestRelease_GetVersionNumber(t *testing.T) {
 	sut.Version = "1.15.2"
 	assert.NotNil(t, sut.GetVersionNumber())
 	assert.Equal(t, version.Must(version.NewVersion("1.15.2")), sut.GetVersionNumber())
+
+	sut.Version = "go1.15"
+	assert.NotNil(t, sut.GetVersionNumber())
+	assert.Equal(t, version.Must(version.NewVersion("1.15")), sut.GetVersionNumber())
 }
 
 func TestRelease_FindFiles(t *testing.T) {

@@ -25,8 +25,8 @@ func TestGoManager_Cleanup(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	setupInstallation(t, tempDir, true, stableVersion)
-	setupInstallation(t, tempDir, true, unstableVersion)
+	setupInstallation(t, tempDir, true, toVersionName(stableVersion))
+	setupInstallation(t, tempDir, true, toVersionName(unstableVersion))
 
 	sut := &GoManager{
 		RootDirectory:     tempDir,
@@ -40,7 +40,7 @@ func TestGoManager_Cleanup(t *testing.T) {
 	}
 
 	assert.NoError(t, sut.Cleanup())
-	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", stableVersion)))
+	assert.DirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", toVersionName(stableVersion))))
 	assert.NoDirExists(t, filepath.Join(tempDir, fmt.Sprintf("go%s", unstableVersion)))
 
 	assert.NoError(t, sut.Cleanup())

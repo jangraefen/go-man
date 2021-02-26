@@ -114,7 +114,7 @@ func handleList(task *tasks.Task, all bool) {
 	listTask.FatalOnError(err)
 
 	for _, r := range releaseList {
-		listTask.Printf("%s", r.GetVersionNumber())
+		listTask.Printf("%s", r.GetVersionName())
 	}
 }
 
